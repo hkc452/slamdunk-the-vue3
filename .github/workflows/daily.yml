@@ -27,6 +27,6 @@ jobs:
     #发布
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
-      env:
+      with:
         github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
         publish_dir: docs/.vuepress/dist
