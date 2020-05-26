@@ -1,0 +1,11 @@
+{
+  "author": "hkc",
+  "license": "BSD",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "dependencies": {
+    "vuepress": "^1.4.1"
+  }
+}
