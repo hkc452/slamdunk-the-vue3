@@ -21,8 +21,8 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-    - run: npm ci # 相当于npm install
-    - run: npm run docs:build
+    - run: yarn -p
+    - run: yarn docs:build
       
     #发布
     - name: Deploy
