@@ -7,7 +7,7 @@
     <meta name="generator" content="VuePress 1.4.1">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.f7f5dee7.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.d8edfb96.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.e11a794a.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.c47f6763.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.c37bf365.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.d03dd686.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.61d022ae.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.6580a772.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.e68cbc61.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.b8c48841.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.0505b373.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.5c460541.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.790f991d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.3ac509fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.94080762.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.c828a48d.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.7a1a9c42.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.e11a794a.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.c47f6763.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.c37bf365.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.68c57be5.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.1cc26122.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.6580a772.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.e68cbc61.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.b8c48841.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.e71be580.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.dbf073f3.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.23ed3f6d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.1e44e2d3.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.a7949e54.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css">
   </head>
   <body>
@@ -70,7 +70,7 @@
   } as any
   return computed
 }
-</code></pre></div><p>从上面可以看出，effect 有可能被多次调用，像下面中 value.foo++，会导致 effectFn 运行两次，因为同时被 effectFn 同时被 effectFn 和 c1 依赖了。</p> <div class="language- extra-class"><pre class="language-text"><code>it('should trigger once', () =&gt; {
+</code></pre></div><p>从上面可以看出，effect 有可能被多次调用，像下面中 value.foo++，会导致 effectFn 运行两次，因为同时被 effectFn 同时被 effectFn 和 c1 依赖了。PS: 下面这个测试用例是自己写的，不是 Vue 里面的。</p> <div class="language- extra-class"><pre class="language-text"><code>it('should trigger once', () =&gt; {
     const value = reactive({ foo: 0 })
     const getter1 = jest.fn(() =&gt; value.foo)
     const c1 = computed(getter1)
@@ -81,6 +81,7 @@
     effect(effectFn)
     expect(effectFn).toBe(1)
     value.foo++
+    // 原本以为是 2
     expect(effectFn).toHaveBeenCalledTimes(3)
   })
 
@@ -89,6 +90,6 @@
       <a href="/slamdunk-the-vue3/main/vue/reactivity/ref.html" class="prev">
         ref
       </a></span> <!----></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.f7f5dee7.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.d8edfb96.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.c828a48d.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.7a1a9c42.js" defer></script>
   </body>
 </html>
