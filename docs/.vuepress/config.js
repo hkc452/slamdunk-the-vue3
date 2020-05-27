@@ -1,11 +1,12 @@
 module.exports = {
     title: 'Vue3.0 源码解读',
     description: 'Vue3.0 源码解读',
+    base: '/slamdunk-the-vue3/',
     themeConfig: {
         nav: [
             { text: 'Vue 3.0 解读', link: '/main/' },
             // { text: 'rfcs中文', link: '/rfcs' },
-            { text: 'Github', link: 'https://baidu.com' },
+            { text: 'Github', link: 'https://github.com/hkc452/slamdunk-the-vue3' },
         ],
         sidebar: {
             '/main/': [

@@ -3,9 +3,11 @@
   "license": "BSD",
   "scripts": {
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "deploy": "npm run docs:build && gh-pages -d docs/.vuepress/dist"
   },
   "dependencies": {
+    "gh-pages": "^2.2.0",
     "vuepress": "^1.4.1"
   }
 }
