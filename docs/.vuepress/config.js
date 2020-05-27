@@ -9,6 +9,7 @@ module.exports = {
     themeConfig: {
         nav: [
             { text: 'Vue 3.0 解读', link: '/main/' },
+            { text: '关于我', link: '/about'},
             { text: 'Github', link: 'https://github.com/hkc452/slamdunk-the-vue3' },
         ],
         sidebar: {
@@ -32,6 +33,9 @@ module.exports = {
                     // path: '/main/vue/compiler/',
                     children: [
                         ['vue/compiler/compiler', 'compiler'],
+                        ['vue/compiler/parse', 'parse'],
+                        ['vue/compiler/transform', 'transform'],
+                        ['vue/compiler/codegen', 'codegen'],
                     ]
                 }
             ],
