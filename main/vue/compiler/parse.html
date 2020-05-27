@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Vue3.0 源码解读</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
+    <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
+    <meta name="description" content="Vue3.0 源码解读">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.b4d9a779.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.f26e4536.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.dc50d82b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.47d91052.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.6d57198b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.491ed15c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.e8ae39ae.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.61d328dc.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.44fc768f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.3ff448e1.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.390d7827.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.aacaf13d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.5ca37265.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.69238938.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.fcf87777.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.9cfca714.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.a104593c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.0e8c094d.js">
+    <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/slamdunk-the-vue3/" class="home-link router-link-active"><!----> <span class="site-name">Vue3.0 源码解读</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/slamdunk-the-vue3/main/" class="nav-link router-link-active">
+  Vue 3.0 解读
+</a></div><div class="nav-item"><a href="/slamdunk-the-vue3/about.html" class="nav-link">
+  关于我
+</a></div><div class="nav-item"><a href="https://github.com/hkc452/slamdunk-the-vue3" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/slamdunk-the-vue3/main/" class="nav-link router-link-active">
+  Vue 3.0 解读
+</a></div><div class="nav-item"><a href="/slamdunk-the-vue3/about.html" class="nav-link">
+  关于我
+</a></div><div class="nav-item"><a href="https://github.com/hkc452/slamdunk-the-vue3" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>响应式系统</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/reactivity/effect.html" class="sidebar-link">effect</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/reactive.html" class="sidebar-link">reactive</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/baseHandlers.html" class="sidebar-link">baseHandlers</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/collectionHandlers.html" class="sidebar-link">collectionHandlers</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/ref.html" class="sidebar-link">ref</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/computed.html" class="sidebar-link">computed</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>编译模块</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="sidebar-link">compiler</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/parse.html" class="active sidebar-link">parse</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/transform.html" class="sidebar-link">transform</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/codegen.html" class="sidebar-link">codegen</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><p>这里主要讲讲 parse ，看看 Vue 怎么对模板进行初步的解析。 在 compile 中调用 baseParse 进行 parse，所以这里先看看 baseParse 。</p> <p>在解析之前，会创建一个上下文，用于保存当前解析进度和一些配置项。</p> <div class="language- extra-class"><pre class="language-text"><code>export function baseParse(
+  content: string,
+  options: ParserOptions = {}
+): RootNode {
+  const context = createParserContext(content, options)
+  const start = getCursor(context)
+  return createRoot(
+    parseChildren(context, TextModes.DATA, []),
+    getSelection(context, start)
+  )
+}
+</code></pre></div><p>options 中基本是用 parseOptions 传下来的 options 进行覆盖， column 表示第几行， line 表示第几列， offset 表示传入 content 的偏差，originalSource 表示原始字符串，在 parse 不会被修改，source 一开始代表原始字符串，在 parse 过程会被裁剪， inPre 表示是否在 pre 标签里面，inVPre 表示是否在 VPre 标签里面。</p> <div class="language- extra-class"><pre class="language-text"><code>function createParserContext(
+  content: string,
+  options: ParserOptions
+): ParserContext {
+  return {
+    options: {
+      ...defaultParserOptions,
+      ...options
+    },
+    column: 1,
+    line: 1,
+    offset: 0,
+    originalSource: content,
+    source: content,
+    inPre: false,
+    inVPre: false
+  }
+}
+</code></pre></div><p>回到 baseParse，创建完 context 之后，我们首先获取一开始的字符串的坐标。 getCursor 返回当前的 行、列、偏差。</p> <div class="language- extra-class"><pre class="language-text"><code>function getCursor(context: ParserContext): Position {
+  const { column, line, offset } = context
+  return { column, line, offset }
+}
+</code></pre></div><p>然后在调用 createRoot 返回根节点的 ast 之前，使用 parseChildren 对模板进行解析。一开始的 TextModes 为DATA，正如我们在 compiler 里面曾经说过，不同的 TextModes 会影响解析。 从下面可以看出，DATA 可以包含 Elements、 Entities ，结束的标志是在 tags 栈中找到 关闭 tag，而对于 RCDATA，不包含  Elements，包含Entities， 结束的标志是 tags 栈上一级有关闭 tag， 一般处于 textarea，RAWTEXT 不包含  Elements 和Entities，结束的标志页数是 tags 栈上一级有关闭 tag，一般位于 style 和 script 内。可能在这里单独讲概念有点懵，后面结合解析过程来会加深理解。</p> <div class="language- extra-class"><pre class="language-text"><code>export const enum TextModes {
+  //          | Elements | Entities | End sign              | Inside of
+  DATA, //    | ✔        | ✔        | End tags of ancestors |
+  RCDATA, //  | ✘        | ✔        | End tag of the parent | &lt;textarea&gt;
+  RAWTEXT, // | ✘        | ✘        | End tag of the parent | &lt;style&gt;,&lt;script&gt;
+  CDATA,
+  ATTRIBUTE_VALUE
+}
+parseChildren(context, TextModes.DATA, [])
+</code></pre></div><p>需要注意的是，对于 Dom 平台来说，对于 DOMNamespaces.HTML,包括在 iframe 和 noscript 标签里面，RCDATA 还包括 title。</p> <div class="language- extra-class"><pre class="language-text"><code>const isRawTextContainer = /*#__PURE__*/ makeMap(
+  'style,iframe,script,noscript',
+  true
+)
+getTextMode({ tag, ns }: ElementNode): TextModes {
+    if (ns === DOMNamespaces.HTML) {
+      if (tag === 'textarea' || tag === 'title') {
+        return TextModes.RCDATA
+      }
+      if (isRawTextContainer(tag)) {
+        return TextModes.RAWTEXT
+      }
+    }
+    return TextModes.DATA
+}
+</code></pre></div><p>现在进行 parseChildren 的分析。首先获取父级 以及 父级的Namespaces，nodes 是解析后的 AST 节点。可以看到，一个 while 循环判断是否解析结束了，同时会 传入去 mode、ancestors，对于根节点来说，ancestors 一开始为空数组。</p> <div class="language- extra-class"><pre class="language-text"><code>function parseChildren(
+  context: ParserContext,
+  mode: TextModes,
+  ancestors: ElementNode[]
+): TemplateChildNode[] {
+  const parent = last(ancestors)
+  const ns = parent ? parent.ns : Namespaces.HTML
+  const nodes: TemplateChildNode[] = []
+
+  while (!isEnd(context, mode, ancestors)) {
+    ...
+  }
+
+  // Whitespace management for more efficient output
+  // (same as v2 whitespace: 'condense')
+  let removedWhitespace = false
+  if (mode !== TextModes.RAWTEXT) {
+    ...
+  }
+
+  return removedWhitespace ? nodes.filter(Boolean) : nodes
+}
+</code></pre></div><p>isEnd 用于判断是否应该要结束解析，</p> <div class="language- extra-class"><pre class="language-text"><code>function isEnd(
+  context: ParserContext,
+  mode: TextModes,
+  ancestors: ElementNode[]
+): boolean {
+  const s = context.source
+
+  switch (mode) {
+    case TextModes.DATA:
+      if (startsWith(s, '&lt;/')) {
+        //TODO: probably bad performance
+        for (let i = ancestors.length - 1; i &gt;= 0; --i) {
+          if (startsWithEndTagOpen(s, ancestors[i].tag)) {
+            return true
+          }
+        }
+      }
+      break
+
+    case TextModes.RCDATA:
+    case TextModes.RAWTEXT: {
+      const parent = last(ancestors)
+      if (parent &amp;&amp; startsWithEndTagOpen(s, parent.tag)) {
+        return true
+      }
+      break
+    }
+
+    case TextModes.CDATA:
+      if (startsWith(s, ']]&gt;')) {
+        return true
+      }
+      break
+  }
+
+  return !s
+}
+</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="prev">
+        compiler
+      </a></span> <span class="next"><a href="/slamdunk-the-vue3/main/vue/compiler/transform.html">
+        transform
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/slamdunk-the-vue3/assets/js/app.b4d9a779.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.f26e4536.js" defer></script>
+  </body>
+</html>
