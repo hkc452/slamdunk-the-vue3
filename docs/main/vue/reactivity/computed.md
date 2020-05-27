@@ -75,4 +75,4 @@ it('should trigger once', () => {
 
 ```
 
-对于 computed 暴露出来的 effect ，主要为了调用 effect 里面 stop 方法依赖收集。至此，响应式模块分析完毕。
+对于 computed 暴露出来的 effect ，主要为了调用 effect 里面 stop 方法停止依赖收集。至此，响应式模块分析完毕。
