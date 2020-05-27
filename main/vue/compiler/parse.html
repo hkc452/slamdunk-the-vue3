@@ -8,7 +8,7 @@
     <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.b4d9a779.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.f26e4536.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.dc50d82b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.47d91052.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.6d57198b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.491ed15c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.e8ae39ae.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.61d328dc.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.44fc768f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.3ff448e1.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.390d7827.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.aacaf13d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.5ca37265.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.69238938.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.fcf87777.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.9cfca714.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.a104593c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.0e8c094d.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.842e4f2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.5c71704c.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.f1c78bd3.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.c287cd7c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.3008ac65.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.112a3c59.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.d661946e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.d02ebb29.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.c14dbecb.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.44fc768f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.bdad5052.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.390d7827.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.a1651338.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.5ca37265.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.69238938.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.2bca14c9.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.9cfca714.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.bb7f35ab.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.5f1579a5.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css">
   </head>
   <body>
@@ -103,7 +103,7 @@ getTextMode({ tag, ns }: ElementNode): TextModes {
 
   return removedWhitespace ? nodes.filter(Boolean) : nodes
 }
-</code></pre></div><p>isEnd 用于判断是否应该要结束解析，</p> <div class="language- extra-class"><pre class="language-text"><code>function isEnd(
+</code></pre></div><p>isEnd 用于判断是否应该要结束解析，但是不同 TextMode 下，对 end 的判断是不同的，其实这点在上面讲 TextModes 的时候已经讲了，TextModes.DATA 允许有标签没闭合，所以只要祖先有相同的标签就可以了，而 RCDATA、RAWTEXT 要求父级标签跟闭合标签一样才算结束，而对于 TextModes.CDATA ，则要求 <code>]]&gt;</code> 结尾，如果都不符合这些条件，则看看 s 是否为空来决定是否到尽头了。</p> <div class="language- extra-class"><pre class="language-text"><code>function isEnd(
   context: ParserContext,
   mode: TextModes,
   ancestors: ElementNode[]
@@ -140,6 +140,114 @@ getTextMode({ tag, ns }: ElementNode): TextModes {
 
   return !s
 }
+</code></pre></div><p>回到 while 循环，如果 isEnd 为 false， 进入循环，如果 mode 为 <code>mode === TextModes.DATA || mode === TextModes.RCDATA</code> 则进入 if 里面，否者往下走，如果这时 node 还为空，则直接进行 parseText 操作。</p> <div class="language- extra-class"><pre class="language-text"><code>__TEST__ &amp;&amp; assert(context.source.length &gt; 0)
+const s = context.source
+let node: TemplateChildNode | TemplateChildNode[] | undefined = undefined
+if (mode === TextModes.DATA || mode === TextModes.RCDATA) {
+    ...
+}
+if (!node) {
+  node = parseText(context, mode)
+}
+</code></pre></div><p>parseText, 看名字就知道用来干嘛的，首先利用 endTokens 去判断结尾，分别是标签的开头、左delimiters， 如果是 TextModes.CDATA 模式下，还包括 <code>]]&gt;</code>， 我们需要最小的 endIndex，即尽可能短的 Text，接着使用 parseTextData 对内容解析。</p> <p>parseTextData 首先 slice source 得到 rawtext，然后 advanceBy 让 context 中 columin、 line 往前进同时对 context.source 进行切割。接下来的判断，就是决定要不要对 Entities 进行解码，对于 <code>mode === TextModes.RAWTEXT || mode === TextModes.CDATA</code> 这两种不需要解码，而如果是其他模式，但是里面没有 <code>&amp;</code>， 也不需要解码，否则调用传进来的解码函数进行解码。</p> <p>parseTextData 结束后，返回 AST 节点，其中类型为 NodeTypes.TEXT， 内容为 parseTextData 返回的内容，loc 代表这个节点开始位置、结束位置以及原始内容，其中位置用三个维度去表示 行、列、偏移，需要记住的是，结束位置是开区间。</p> <div class="language- extra-class"><pre class="language-text"><code>function parseText(context: ParserContext, mode: TextModes): TextNode {
+  __TEST__ &amp;&amp; assert(context.source.length &gt; 0)
+
+  const endTokens = ['&lt;', context.options.delimiters[0]]
+  if (mode === TextModes.CDATA) {
+    endTokens.push(']]&gt;')
+  }
+
+  let endIndex = context.source.length
+  for (let i = 0; i &lt; endTokens.length; i++) {
+    const index = context.source.indexOf(endTokens[i], 1)
+    if (index !== -1 &amp;&amp; endIndex &gt; index) {
+      endIndex = index
+    }
+  }
+
+  __TEST__ &amp;&amp; assert(endIndex &gt; 0)
+
+  const start = getCursor(context)
+  const content = parseTextData(context, endIndex, mode)
+
+  return {
+    type: NodeTypes.TEXT,
+    content,
+    loc: getSelection(context, start)
+  }
+}
+function parseTextData(
+  context: ParserContext,
+  length: number,
+  mode: TextModes
+): string {
+  const rawText = context.source.slice(0, length)
+  advanceBy(context, length)
+  if (
+    mode === TextModes.RAWTEXT ||
+    mode === TextModes.CDATA ||
+    rawText.indexOf('&amp;') === -1
+  ) {
+    return rawText
+  } else {
+    // DATA or RCDATA containing &quot;&amp;&quot;&quot;. Entity decoding required.
+    return context.options.decodeEntities(
+      rawText,
+      mode === TextModes.ATTRIBUTE_VALUE
+    )
+  }
+}
+</code></pre></div><p>回到上面的判断，对于 <code>mode === TextModes.DATA || mode === TextModes.RCDATA</code> 模式下，记住根节点是 TextModes.DATA 模式，继续判断，如果不在 inVPre 下面，又是左 delimiters 开头的，对于默认 delimiters 对是 <code>{{</code> 和 <code>}}</code>，这些都满足，则进行插值 parseInterpolation 的解析。</p> <div class="language- extra-class"><pre class="language-text"><code>if (mode === TextModes.DATA || mode === TextModes.RCDATA) {
+    if (!context.inVPre &amp;&amp; startsWith(s, context.options.delimiters[0])) {
+        // '{{'
+        node = parseInterpolation(context, mode)
+      } else if (mode === TextModes.DATA &amp;&amp; s[0] === '&lt;') {
+       
+    }
+}
+</code></pre></div><p>parseInterpolation 插值函数如下，</p> <div class="language- extra-class"><pre class="language-text"><code>function parseInterpolation(
+  context: ParserContext,
+  mode: TextModes
+): InterpolationNode | undefined {
+  const [open, close] = context.options.delimiters
+  __TEST__ &amp;&amp; assert(startsWith(context.source, open))
+
+  const closeIndex = context.source.indexOf(close, open.length)
+  if (closeIndex === -1) {
+    emitError(context, ErrorCodes.X_MISSING_INTERPOLATION_END)
+    return undefined
+  }
+
+  const start = getCursor(context)
+  advanceBy(context, open.length)
+  const innerStart = getCursor(context)
+  const innerEnd = getCursor(context)
+  const rawContentLength = closeIndex - open.length
+  const rawContent = context.source.slice(0, rawContentLength)
+  const preTrimContent = parseTextData(context, rawContentLength, mode)
+  const content = preTrimContent.trim()
+  const startOffset = preTrimContent.indexOf(content)
+  if (startOffset &gt; 0) {
+    advancePositionWithMutation(innerStart, rawContent, startOffset)
+  }
+  const endOffset =
+    rawContentLength - (preTrimContent.length - content.length - startOffset)
+  advancePositionWithMutation(innerEnd, rawContent, endOffset)
+  advanceBy(context, close.length)
+
+  return {
+    type: NodeTypes.INTERPOLATION,
+    content: {
+      type: NodeTypes.SIMPLE_EXPRESSION,
+      isStatic: false,
+      // Set `isConstant` to false by default and will decide in transformExpression
+      isConstant: false,
+      content,
+      loc: getSelection(context, innerStart, innerEnd)
+    },
+    loc: getSelection(context, start)
+  }
+}
 </code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="prev">
@@ -149,6 +257,6 @@ getTextMode({ tag, ns }: ElementNode): TextModes {
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.b4d9a779.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.f26e4536.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.842e4f2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.5c71704c.js" defer></script>
   </body>
 </html>
