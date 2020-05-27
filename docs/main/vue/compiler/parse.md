@@ -223,7 +223,7 @@ if (mode === TextModes.DATA || mode === TextModes.RCDATA) {
 parseInterpolation 插值函数如下，拿到界定符，判断有没有结束界定符，没有的话，抛出错误，返回 undefined ，这样后续可以被上面解读的 parseText 进行处理。start 是插值符的开始位置， innerStart 是 插值内容开始的位置，这个会被进行二次修复，因为内容前面可能会有空格，同样 innerEnd 是指插值内容结束的位置，也会被二次修复，但是为什么 ` const endOffset =
     rawContentLength - (preTrimContent.length - content.length - startOffset)` 这样算呢？
     
-首先 rawContentLength 原始插值，里面可能包含前后空格以及内容可能需要解码，如果需要解码，解码后的内容是比没有解码前的内容长度要短的，`(preTrimContent.length - content.length - startOffset)` 拿到的是内容后面空格的长度，所以 endOffset 就是 rawstart 到 preTrimContent，修复 innerEnd 之后，继续把 context 推向前 close 的长度，最后返回节点类型为 NodeTypes.INTERPOLATION，content 为 NodeTypes.SIMPLE_EXPRESSION 类型，其中 isConstant 会在 transformExpression 真正确定下来，这里默认为 false。
+首先 rawContentLength 是原始插值的长度，里面可能包含前后空格以及内容可能需要解码，如果需要解码，解码后的内容是比没有解码前的内容长度要短的，`(preTrimContent.length - content.length - startOffset)` 拿到的是内容后面空格的长度，所以 endOffset 就是原始插值减去后面空格的长度，修复 innerEnd 之后，继续把 context 推向前 close 的长度，最后返回节点类型为 NodeTypes.INTERPOLATION，content 为 NodeTypes.SIMPLE_EXPRESSION 类型，其中 isConstant 会在 transformExpression 真正确定下来，这里默认为 false。
 ```
 function parseInterpolation(
   context: ParserContext,
