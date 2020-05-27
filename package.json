@@ -2,9 +2,9 @@
   "author": "hkc",
   "license": "BSD",
   "scripts": {
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs",
-    "deploy": "npm run docs:build && gh-pages -d docs/.vuepress/dist"
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs",
+    "deploy": "npm run build && gh-pages -d docs/.vuepress/dist"
   },
   "dependencies": {
     "gh-pages": "^2.2.0",
