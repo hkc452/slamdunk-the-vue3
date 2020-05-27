@@ -22,7 +22,7 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - run: yarn -p
-    - run: yarn docs:build
+    - run: yarn build
       
     #发布
     - name: Deploy
