@@ -2,7 +2,7 @@ compiler 主要用于编译模板生成渲染函数，期间一共经历三个�
 
 接下来，会将 compiler-dom 和 compiler-core 串烧起来，一起康康 compiler 到底做了什么。
 
-下面是 compiler-dom 的 compile 方法，baseCompile 是 compiler-core 暴露出来的，方便不同平台传入自己的 option，这里是 dom 平台，parserOptions 就是 dom 平台传入的针对 dom 的 option ，同时也传入了平台 nodeTransforms 的  DOMNodeTransforms 和 directiveTransforms 的 DOMDirectiveTransforms。 transformHoist 代表要不要对 hoist 进行转化， 注意这个只在 node 平台进行转化，在 compiler 会经常 看到 __BROWSER__ 的判断，这是因为有些优化只能在 node 进行，对于浏览器运行时进行编译是没办法做到的。
+下面是 compiler-dom 的 compile 方法，baseCompile 是 compiler-core 暴露出来的，方便不同平台传入自己的 option，这里是 dom 平台，parserOptions 就是 dom 平台传入的针对 dom 的 option ，同时也传入了平台 nodeTransforms 的  DOMNodeTransforms 和 directiveTransforms 的 DOMDirectiveTransforms。 transformHoist 代表要不要对 hoist 进行转化， 注意这个只在 node 平台进行转化，在 compiler 会经常 看到 `__BROWSER__ `的判断，这是因为有些优化只能在 node 进行，对于浏览器运行时进行编译是没办法做到的。
 ```
 export function compile(
   template: string,

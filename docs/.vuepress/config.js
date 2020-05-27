@@ -3,6 +3,7 @@ module.exports = {
     description: 'Vue3.0 源码解读',
     base: '/slamdunk-the-vue3/',
     head: [
+        ['link', { rel: 'icon', href: '/onepunch.jpeg' }],
         ['script', { src: 'https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116'}]
     ],
     themeConfig: {
