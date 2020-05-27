@@ -8,7 +8,7 @@
     <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.842e4f2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.5c71704c.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.f1c78bd3.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.c287cd7c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.3008ac65.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.112a3c59.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.d661946e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.d02ebb29.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.c14dbecb.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.44fc768f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.bdad5052.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.390d7827.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.a1651338.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.5ca37265.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.69238938.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.2bca14c9.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.9cfca714.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.bb7f35ab.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.5f1579a5.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.0ef13943.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.7b9677cc.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.7120d09e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.dc16ea05.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.6d57198b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.800f793e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.d661946e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.d02ebb29.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.c14dbecb.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.44fc768f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.6890f1ff.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.8d152f5d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.925c91fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.5ca37265.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.69238938.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.2bca14c9.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.9cfca714.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.bb7f35ab.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.5f1579a5.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.bc380d03.css">
   </head>
   <body>
@@ -205,7 +205,7 @@ function parseTextData(
        
     }
 }
-</code></pre></div><p>parseInterpolation 插值函数如下，</p> <div class="language- extra-class"><pre class="language-text"><code>function parseInterpolation(
+</code></pre></div><p>parseInterpolation 插值函数如下，拿到界定符，判断有没有结束界定符，没有的话，抛出错误，返回 undefined ，这样后续可以被上面解读的 parseText 进行处理。start 是插值符的开始位置， innerStart 是 插值内容开始的位置，这个会被进行二次修复，因为内容前面可能会有空格，同样 innerEnd 是指插值内容结束的位置，也会被二次修复，但是为什么 <code>const endOffset = rawContentLength - (preTrimContent.length - content.length - startOffset)</code> 这样算呢？</p> <p>首先 rawContentLength 原始插值，里面可能包含前后空格以及内容可能需要解码，如果需要解码，解码后的内容是比没有解码前的内容长度要短的，<code>(preTrimContent.length - content.length - startOffset)</code> 拿到的是内容后面空格的长度，所以 endOffset 就是 rawstart 到 preTrimContent，修复 innerEnd 之后，继续把 context 推向前 close 的长度，最后返回节点类型为 NodeTypes.INTERPOLATION，content 为 NodeTypes.SIMPLE_EXPRESSION 类型，其中 isConstant 会在 transformExpression 真正确定下来，这里默认为 false。</p> <div class="language- extra-class"><pre class="language-text"><code>function parseInterpolation(
   context: ParserContext,
   mode: TextModes
 ): InterpolationNode | undefined {
@@ -230,7 +230,7 @@ function parseTextData(
   if (startOffset &gt; 0) {
     advancePositionWithMutation(innerStart, rawContent, startOffset)
   }
-  const endOffset =
+  const  =
     rawContentLength - (preTrimContent.length - content.length - startOffset)
   advancePositionWithMutation(innerEnd, rawContent, endOffset)
   advanceBy(context, close.length)
@@ -257,6 +257,6 @@ function parseTextData(
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.842e4f2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.5c71704c.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.0ef13943.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.ff58ff2a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.7b9677cc.js" defer></script>
   </body>
 </html>
