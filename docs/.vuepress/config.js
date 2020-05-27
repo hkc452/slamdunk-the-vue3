@@ -3,15 +3,7 @@ module.exports = {
     description: 'Vue3.0 源码解读',
     base: '/slamdunk-the-vue3/',
     head: [
-        ['script', {}, `
-            var _hmt = _hmt || [];
-            (function() {
-            var hm = document.createElement("script");
-            hm.src = "https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116";
-            var s = document.getElementsByTagName("script")[0]; 
-            s.parentNode.insertBefore(hm, s);
-            })();        
-        `]
+        ['script', { src: 'https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116'}]
     ],
     themeConfig: {
         nav: [
