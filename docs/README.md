@@ -12,5 +12,5 @@ features:
   details: 他强任他强
 - title: 就这？
   details: 走过路过不要错过
-footer: MIT Licensed | Copyright © 2020-present hkc
+footer: BSD Licensed | Copyright © 2020-present hkc
 ---

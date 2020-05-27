@@ -56,7 +56,7 @@ export function computed<T>(
   return computed
 }
 ```
-从上面可以看出，effect 有可能被多次调用，像下面中 value.foo++，会导致 effectFn 运行两次，因为同时被 effectFn 同时被 effectFn 和 c1 依赖了。
+从上面可以看出，effect 有可能被多次调用，像下面中 value.foo++，会导致 effectFn 运行两次，因为同时被 effectFn 同时被 effectFn 和 c1 依赖了。PS: 下面这个测试用例是自己写的，不是 Vue 里面的。
 
 ```
 it('should trigger once', () => {
@@ -70,6 +70,7 @@ it('should trigger once', () => {
     effect(effectFn)
     expect(effectFn).toBe(1)
     value.foo++
+    // 原本以为是 2
     expect(effectFn).toHaveBeenCalledTimes(3)
   })
 
