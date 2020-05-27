@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /hero.png
+heroImage: /hero.jpeg
 heroText: SlamDunk the Vue3
 tagline: 站在 Vue3 的高度上，湖人总冠军🏆
 actionText: 快速阅读 →
