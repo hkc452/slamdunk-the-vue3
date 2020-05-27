@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Vue3.0 源码解读</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    
+    <meta name="description" content="Vue3.0 源码解读">
+    <link rel="preload" href="/assets/css/0.styles.f164480b.css" as="style"><link rel="preload" href="/assets/js/app.9772633f.js" as="script"><link rel="preload" href="/assets/js/2.ff58ff2a.js" as="script"><link rel="preload" href="/assets/js/15.ff2073e4.js" as="script"><link rel="prefetch" href="/assets/js/10.e11a794a.js"><link rel="prefetch" href="/assets/js/11.3eee1c20.js"><link rel="prefetch" href="/assets/js/12.412fc2fa.js"><link rel="prefetch" href="/assets/js/13.844d5920.js"><link rel="prefetch" href="/assets/js/14.bccd6a55.js"><link rel="prefetch" href="/assets/js/16.d39414b9.js"><link rel="prefetch" href="/assets/js/17.e68cbc61.js"><link rel="prefetch" href="/assets/js/3.b8c48841.js"><link rel="prefetch" href="/assets/js/4.fca74266.js"><link rel="prefetch" href="/assets/js/5.0505b373.js"><link rel="prefetch" href="/assets/js/6.5c460541.js"><link rel="prefetch" href="/assets/js/7.790f991d.js"><link rel="prefetch" href="/assets/js/8.1e44e2d3.js"><link rel="prefetch" href="/assets/js/9.a7949e54.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.f164480b.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Vue3.0 源码解读</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/main/" class="nav-link router-link-active">
+  Vue 3.0 解读
+</a></div><div class="nav-item"><a href="https://baidu.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/main/" class="nav-link router-link-active">
+  Vue 3.0 解读
+</a></div><div class="nav-item"><a href="https://baidu.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>响应式系统</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/main/vue/reactivity/effect.html" class="sidebar-link">effect</a></li><li><a href="/main/vue/reactivity/reactive.html" class="sidebar-link">reactive</a></li><li><a href="/main/vue/reactivity/baseHandlers.html" class="sidebar-link">baseHandlers</a></li><li><a href="/main/vue/reactivity/collectionHandlers.html" class="sidebar-link">collectionHandlers</a></li><li><a href="/main/vue/reactivity/ref.html" class="active sidebar-link">ref</a></li><li><a href="/main/vue/reactivity/computed.html" class="sidebar-link">computed</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><p>ref 其实就是 reactive 包了一层，读取值要要通过 ref.value 进行读取，同时进行 track ，而设置值的时候，也会先判断相对于旧值是否有变化，有变化才进行设置，以及 trigger。话不多说，下面就进行 ref 的分析。</p> <p>通过 createRef 创建 ref，如果传入的 rawValue 本身就是一个 ref 的话，直接返回。</p> <p>而如果 shallow 为 false， 直接让 ref.value 等于 value，否则对 rawValue 进行 convert 转化成 reactive。可以看到 __v_isRef 标识 一个对象是否是 ref，读取 value 触发 track，设置 value 而且 newVal 的 toRaw 跟 原先的 rawValue 不一致，则进行设置，同样对于非 shallow 也进行 convert。</p> <div class="language- extra-class"><pre class="language-text"><code>export function ref(value?: unknown) {
+  return createRef(value)
+}
+const convert = &lt;T extends unknown&gt;(val: T): T =&gt;
+  isObject(val) ? reactive(val) : val
+function createRef(rawValue: unknown, shallow = false) {
+  if (isRef(rawValue)) {
+    return rawValue
+  }
+  let value = shallow ? rawValue : convert(rawValue)
+  const r = {
+    __v_isRef: true,
+    get value() {
+      track(r, TrackOpTypes.GET, 'value')
+      return value
+    },
+    set value(newVal) {
+      if (hasChanged(toRaw(newVal), rawValue)) {
+        rawValue = newVal
+        value = shallow ? newVal : convert(newVal)
+        trigger(
+          r,
+          TriggerOpTypes.SET,
+          'value',
+          __DEV__ ? { newValue: newVal } : void 0
+        )
+      }
+    }
+  }
+  return r
+}
+</code></pre></div><p>triggerRef 手动触发 trigger ，对 shallowRef 可以由调用者手动触发。 unref 则是反向操作，取出 ref 中的 value 值。</p> <div class="language- extra-class"><pre class="language-text"><code>export function triggerRef(ref: Ref) {
+  trigger(
+    ref,
+    TriggerOpTypes.SET,
+    'value',
+    __DEV__ ? { newValue: ref.value } : void 0
+  )
+}
+
+export function unref&lt;T&gt;(ref: T): T extends Ref&lt;infer V&gt; ? V : T {
+  return isRef(ref) ? (ref.value as any) : ref
+}
+
+</code></pre></div><p>toRefs 是将一个 reactive 对象或者 readonly 转化成 一个个 refs 对象，这个可以从 toRef 方法可以看出。</p> <div class="language- extra-class"><pre class="language-text"><code>export function toRefs&lt;T extends object&gt;(object: T): ToRefs&lt;T&gt; {
+  if (__DEV__ &amp;&amp; !isProxy(object)) {
+    console.warn(`toRefs() expects a reactive object but received a plain one.`)
+  }
+  const ret: any = {}
+  for (const key in object) {
+    ret[key] = toRef(object, key)
+  }
+  return ret
+}
+
+export function toRef&lt;T extends object, K extends keyof T&gt;(
+  object: T,
+  key: K
+): Ref&lt;T[K]&gt; {
+  return {
+    __v_isRef: true,
+    get value(): any {
+      return object[key]
+    },
+    set value(newVal) {
+      object[key] = newVal
+    }
+  } as any
+}
+
+</code></pre></div><p>需要提到 baseHandlers 一点的是，对于非 shallow 模式中，对于 target 不是数组，会直接拿 ref.value 的值，而不是 ref。</p> <div class="language- extra-class"><pre class="language-text"><code> if (isRef(res)) {
+      if (targetIsArray) {
+        !isReadonly &amp;&amp; track(target, TrackOpTypes.GET, key)
+        return res
+      } else {
+        // ref unwrapping, only for Objects, not for Arrays.
+        return res.value
+      }
+    }
+
+</code></pre></div><p>而 set 中，如果对于 target 是对象，oldValue 是 ref， value 不是 ref，直接把 vlaue 设置给 oldValue.value</p> <div class="language- extra-class"><pre class="language-text"><code>if (!shallow) {
+      value = toRaw(value)
+      if (!isArray(target) &amp;&amp; isRef(oldValue) &amp;&amp; !isRef(value)) {
+        oldValue.value = value
+        return true
+      }
+}
+</code></pre></div><p>需要注意的是， ref 还支持自定义 ref，就是又调用者手动去触发 track 或者 trigger，就是通过工厂模式生成我们的 ref 的 get 和 set</p> <div class="language- extra-class"><pre class="language-text"><code>export type CustomRefFactory&lt;T&gt; = (
+  track: () =&gt; void,
+  trigger: () =&gt; void
+) =&gt; {
+  get: () =&gt; T
+  set: (value: T) =&gt; void
+}
+
+export function customRef&lt;T&gt;(factory: CustomRefFactory&lt;T&gt;): Ref&lt;T&gt; {
+  const { get, set } = factory(
+    () =&gt; track(r, TrackOpTypes.GET, 'value'),
+    () =&gt; trigger(r, TriggerOpTypes.SET, 'value')
+  )
+  const r = {
+    __v_isRef: true,
+    get value() {
+      return get()
+    },
+    set value(v) {
+      set(v)
+    }
+  }
+  return r as any
+}
+</code></pre></div><p>这个用法，我们可以在测试用例找到，</p> <div class="language- extra-class"><pre class="language-text"><code> const custom = customRef((track, trigger) =&gt; ({
+  get() {
+    track()
+    return value
+  },
+  set(newValue: number) {
+    value = newValue
+    _trigger = trigger
+  }
+}))
+</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/main/vue/reactivity/collectionHandlers.html" class="prev">
+        collectionHandlers
+      </a></span> <span class="next"><a href="/main/vue/reactivity/computed.html">
+        computed
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/assets/js/app.9772633f.js" defer></script><script src="/assets/js/2.ff58ff2a.js" defer></script><script src="/assets/js/15.ff2073e4.js" defer></script>
+  </body>
+</html>
