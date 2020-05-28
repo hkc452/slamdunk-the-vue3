@@ -1,4 +1,4 @@
-## SlamDunk the Vue3 [![Build Status](https://travis-ci.com/hkc452/slamdunk-the-vue3.svg?branch=master)](https://travis-ci.com/hkc452/slamdunk-the-vue3)
+## SlamDunk the Vue3 [![Actions Status](https://github.com/hkc452/slamdunk-the-vue3/workflows/Website/badge.svg)](https://github.com/hkc452/slamdunk-the-vue3/actions)
 
 这个库用于对 Vue3 进行全面解读，站在 Vue3 的肩膀上，湘北全国总冠军🏆
 
