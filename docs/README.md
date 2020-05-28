@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: https://s1.ax1x.com/2020/05/27/tANQt1.jpg
+heroImage: https://s1.ax1x.com/2020/05/28/te9oin.jpg
 heroText: SlamDunk the Vue3
 tagline: 站在 Vue3 的高度上，湘北全国总冠军🏆
 actionText: 点击揭开 Vue3 神秘面纱 →
