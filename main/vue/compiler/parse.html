@@ -8,7 +8,7 @@
     <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.6106834d.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.9fb4dc2d.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.1c901dc8.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.bdd4dc7a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.0fd45e5b.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.1c901dc8.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css">
   </head>
   <body>
@@ -412,6 +412,80 @@ function parseTextData(
 
   return nodes
 }
+</code></pre></div><p>回到循环, 当 <code>s[1]</code> 是 <code>/</code> 时， 如果长度就为2，上报 <code>EOF_BEFORE_TAG_NAME</code> 错误，看英文都大概知道啥意思了，没找到 tag 就结束了。如果 <code>s[2] === '&gt;'</code>， 上报 <code>MISSING_END_TAG_NAME</code> 错误， 往前推进3长度，如果 emitError 抛出错误的话，相当于解析器容忍这个错误， continue 继续解析。如果 <code>/[a-z]/i.test(s[2])</code> 成立，就是类似 <code>&lt;/div&gt;</code>，我们都知道 html 标签要么是成对出现或者 Void Tag,而这种情况会在下面 parseElement 被处理，在这里，我们上报 <code>X_INVALID_END_TAG</code> 错误， 并且调用 parseTag 解析节点。最后，如果前面的判断都不满足，就掉入前面所说的 parseBogusComment 中正则匹配的最后一项，同时上报 <code>INVALID_FIRST_CHARACTER_OF_TAG_NAME</code> 错误。</p> <div class="language- extra-class"><pre class="language-text"><code>else if (s[1] === '/') {
+  // https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
+  if (s.length === 2) {
+    emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 2)
+  } else if (s[2] === '&gt;') {
+    emitError(context, ErrorCodes.MISSING_END_TAG_NAME, 2)
+    advanceBy(context, 3)
+    continue
+  } else if (/[a-z]/i.test(s[2])) {
+    emitError(context, ErrorCodes.X_INVALID_END_TAG)
+    parseTag(context, TagType.End, parent)
+    continue
+  } else {
+    emitError(
+      context,
+      ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME,
+      2
+    )
+    node = parseBogusComment(context)
+  }
+}
+</code></pre></div><p>回到循环，<code>else if (s[1] === '/') {</code> 分支讲解完毕，接下来讲 <code>/[a-z]/i.test(s[1])</code> 分支。这个分支，就是整儿八经地处理标签的分支了。</p> <div class="language- extra-class"><pre class="language-text"><code>else if (/[a-z]/i.test(s[1])) {
+  node = parseElement(context, ancestors)
+}
+</code></pre></div><p>下面就是 parseElement 函数。</p> <div class="language- extra-class"><pre class="language-text"><code>function parseElement(
+  context: ParserContext,
+  ancestors: ElementNode[]
+): ElementNode | undefined {
+  __TEST__ &amp;&amp; assert(/^&lt;[a-z]/i.test(context.source))
+
+  // Start tag.
+  const wasInPre = context.inPre
+  const wasInVPre = context.inVPre
+  const parent = last(ancestors)
+  const element = parseTag(context, TagType.Start, parent)
+  const isPreBoundary = context.inPre &amp;&amp; !wasInPre
+  const isVPreBoundary = context.inVPre &amp;&amp; !wasInVPre
+
+  if (element.isSelfClosing || context.options.isVoidTag(element.tag)) {
+    return element
+  }
+
+  // Children.
+  ancestors.push(element)
+  const mode = context.options.getTextMode(element, parent)
+  const children = parseChildren(context, mode, ancestors)
+  ancestors.pop()
+
+  element.children = children
+
+  // End tag.
+  if (startsWithEndTagOpen(context.source, element.tag)) {
+    parseTag(context, TagType.End, parent)
+  } else {
+    emitError(context, ErrorCodes.X_MISSING_END_TAG, 0, element.loc.start)
+    if (context.source.length === 0 &amp;&amp; element.tag.toLowerCase() === 'script') {
+      const first = children[0]
+      if (first &amp;&amp; startsWith(first.loc.source, '&lt;!--')) {
+        emitError(context, ErrorCodes.EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT)
+      }
+    }
+  }
+
+  element.loc = getSelection(context, element.loc.start)
+
+  if (isPreBoundary) {
+    context.inPre = false
+  }
+  if (isVPreBoundary) {
+    context.inVPre = false
+  }
+  return element
+}
+
 </code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="prev">
@@ -421,6 +495,6 @@ function parseTextData(
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.6106834d.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.9fb4dc2d.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.bdd4dc7a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.0fd45e5b.js" defer></script>
   </body>
 </html>
