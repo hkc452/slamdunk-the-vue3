@@ -459,3 +459,86 @@ function parseCDATA(
   return nodes
 }
 ```
+回到循环, 当 `s[1]` 是 `/` 时， 如果长度就为2，上报 `EOF_BEFORE_TAG_NAME` 错误，看英文都大概知道啥意思了，没找到 tag 就结束了。如果 `s[2] === '>'`， 上报 `MISSING_END_TAG_NAME` 错误， 往前推进3长度，如果 emitError 抛出错误的话，相当于解析器容忍这个错误， continue 继续解析。如果 `/[a-z]/i.test(s[2])` 成立，就是类似 `</div>`，我们都知道 html 标签要么是成对出现或者 Void Tag,而这种情况会在下面 parseElement 被处理，在这里，我们上报 `X_INVALID_END_TAG` 错误， 并且调用 parseTag 解析节点。最后，如果前面的判断都不满足，就掉入前面所说的 parseBogusComment 中正则匹配的最后一项，同时上报 `INVALID_FIRST_CHARACTER_OF_TAG_NAME` 错误。
+```
+else if (s[1] === '/') {
+  // https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
+  if (s.length === 2) {
+    emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 2)
+  } else if (s[2] === '>') {
+    emitError(context, ErrorCodes.MISSING_END_TAG_NAME, 2)
+    advanceBy(context, 3)
+    continue
+  } else if (/[a-z]/i.test(s[2])) {
+    emitError(context, ErrorCodes.X_INVALID_END_TAG)
+    parseTag(context, TagType.End, parent)
+    continue
+  } else {
+    emitError(
+      context,
+      ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME,
+      2
+    )
+    node = parseBogusComment(context)
+  }
+}
+```
+回到循环，`else if (s[1] === '/') {` 分支讲解完毕，接下来讲 `/[a-z]/i.test(s[1])` 分支。这个分支，就是整儿八经地处理标签的分支了。
+```
+else if (/[a-z]/i.test(s[1])) {
+  node = parseElement(context, ancestors)
+}
+```
+下面就是 parseElement 函数。
+```
+function parseElement(
+  context: ParserContext,
+  ancestors: ElementNode[]
+): ElementNode | undefined {
+  __TEST__ && assert(/^<[a-z]/i.test(context.source))
+
+  // Start tag.
+  const wasInPre = context.inPre
+  const wasInVPre = context.inVPre
+  const parent = last(ancestors)
+  const element = parseTag(context, TagType.Start, parent)
+  const isPreBoundary = context.inPre && !wasInPre
+  const isVPreBoundary = context.inVPre && !wasInVPre
+
+  if (element.isSelfClosing || context.options.isVoidTag(element.tag)) {
+    return element
+  }
+
+  // Children.
+  ancestors.push(element)
+  const mode = context.options.getTextMode(element, parent)
+  const children = parseChildren(context, mode, ancestors)
+  ancestors.pop()
+
+  element.children = children
+
+  // End tag.
+  if (startsWithEndTagOpen(context.source, element.tag)) {
+    parseTag(context, TagType.End, parent)
+  } else {
+    emitError(context, ErrorCodes.X_MISSING_END_TAG, 0, element.loc.start)
+    if (context.source.length === 0 && element.tag.toLowerCase() === 'script') {
+      const first = children[0]
+      if (first && startsWith(first.loc.source, '<!--')) {
+        emitError(context, ErrorCodes.EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT)
+      }
+    }
+  }
+
+  element.loc = getSelection(context, element.loc.start)
+
+  if (isPreBoundary) {
+    context.inPre = false
+  }
+  if (isVPreBoundary) {
+    context.inVPre = false
+  }
+  return element
+}
+
+```
