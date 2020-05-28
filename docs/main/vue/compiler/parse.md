@@ -269,3 +269,193 @@ function parseInterpolation(
   }
 }
 ```
+
+回到循环，如果不是插值，看看是不是处于 TextModes.DATA 模式，以及第一个字符串是不是 '<'，需要注意的一点是，只要没有自定义的 onError 不是抛出错误的话，最后的都会被 parseText 兜底处理的。
+
+下面继续看，如果  `s.length === 1` 则 上报错误，否则如果看看字符串第二位是不是 `!`，因为有可能是 html 注解`<!--`， 也有可能是 DOCTYPE `<!DOCTYPE`,  如果是 `<![CDATA[` 开头且 不是出于 Namespaces.HTML 命名空间下的话，则用 parseCDATA 解析，否则上报 `CDATA_IN_HTML_CONTENT` 错误，如果 `!` 都没有被处理的话，上报 `INCORRECTLY_OPENED_COMMENT` 错误，上面两个错误都用 parseBogusComment 兜底处理 如果上报没有抛出错误的话。
+
+```
+else if (mode === TextModes.DATA && s[0] === '<') {
+    // https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state
+    if (s.length === 1) {
+      emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 1)
+    } else if (s[1] === '!') {
+      // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
+      if (startsWith(s, '<!--')) {
+        node = parseComment(context)
+      } else if (startsWith(s, '<!DOCTYPE')) {
+        // Ignore DOCTYPE by a limitation.
+        node = parseBogusComment(context)
+      } else if (startsWith(s, '<![CDATA[')) {
+        if (ns !== Namespaces.HTML) {
+          node = parseCDATA(context, ancestors)
+        } else {
+          emitError(context, ErrorCodes.CDATA_IN_HTML_CONTENT)
+          node = parseBogusComment(context)
+        }
+      } else {
+        emitError(context, ErrorCodes.INCORRECTLY_OPENED_COMMENT)
+        node = parseBogusComment(context)
+      }
+    } else if (s[1] === '/') {
+        ...
+    } else if (/[a-z]/i.test(s[1])) {
+      ...
+    } else if (s[1] === '?') {
+     ...
+    } else {
+     ...
+    }
+}
+```
+接下来，先讲讲 `!` 开头用到的几个解析函数，parseComment 、parseBogusComment 和 parseCDATA。
+
+
+先看看 parseComment， 先断言是否符合注释，接着用正则匹配注释的结尾，如果匹配不到，则消费完剩下的source，同时上报 `EOF_IN_COMMENT` 错误。如果 `match.index <= 3`, 说明匹配到的 `--` 是注释开头的 `--`, 上报`ABRUPT_CLOSING_OF_EMPTY_COMMENT`,如果分组1有有值，上报 `INCORRECTLY_CLOSED_COMMENT`,注释结尾不允许有感叹号。接着判断注释里面有没有嵌套注释，有的话，也要上报 `NESTED_COMMENT`，至于`advanceBy(context, nestedIndex - prevIndex + 1)` 为什么要加1呢，因为 prevIndex 是 context 中位置的下一个位置，所以需要在修复正确的长度要加1。最后返回 type 为 NodeTypes.COMMENT， content 为注释内容的 AST 节点。
+```
+function parseComment(context: ParserContext): CommentNode {
+  __TEST__ && assert(startsWith(context.source, '<!--'))
+
+  const start = getCursor(context)
+  let content: string
+
+  // Regular comment.
+  const match = /--(\!)?>/.exec(context.source)
+  if (!match) {
+    content = context.source.slice(4)
+    advanceBy(context, context.source.length)
+    emitError(context, ErrorCodes.EOF_IN_COMMENT)
+  } else {
+    if (match.index <= 3) {
+      emitError(context, ErrorCodes.ABRUPT_CLOSING_OF_EMPTY_COMMENT)
+    }
+    if (match[1]) {
+      emitError(context, ErrorCodes.INCORRECTLY_CLOSED_COMMENT)
+    }
+    content = context.source.slice(4, match.index)
+
+    // Advancing with reporting nested comments.
+    const s = context.source.slice(0, match.index)
+    let prevIndex = 1,
+      nestedIndex = 0
+    while ((nestedIndex = s.indexOf('<!--', prevIndex)) !== -1) {
+      advanceBy(context, nestedIndex - prevIndex + 1)
+      if (nestedIndex + 4 < s.length) {
+        emitError(context, ErrorCodes.NESTED_COMMENT)
+      }
+      prevIndex = nestedIndex + 1
+    }
+    advanceBy(context, match.index + match[0].length - prevIndex + 1)
+  }
+
+  return {
+    type: NodeTypes.COMMENT,
+    content,
+    loc: getSelection(context, start)
+  }
+}
+```
+
+再看看 parseBogusComment，也是一开始用正则去判断开头是否符合，这个正则有点意思，就是开头`<`, 中间或者是 `!` 或者 `?` 或者是 `/` 后面跟着不是 a 到 z。
+```
+function parseBogusComment(context: ParserContext): CommentNode | undefined {
+  __TEST__ && assert(/^<(?:[\!\?]|\/[^a-z>])/i.test(context.source))
+
+  const start = getCursor(context)
+  const contentStart = context.source[1] === '?' ? 1 : 2
+  let content: string
+
+  const closeIndex = context.source.indexOf('>')
+  if (closeIndex === -1) {
+    content = context.source.slice(contentStart)
+    advanceBy(context, context.source.length)
+  } else {
+    content = context.source.slice(contentStart, closeIndex)
+    advanceBy(context, closeIndex + 1)
+  }
+
+  return {
+    type: NodeTypes.COMMENT,
+    content,
+    loc: getSelection(context, start)
+  }
+}
+```
+我们可以循环那里看看 bogusComment 的适用范围。DOCTYPE 、CDATA 在 Namespaces.HTML 命名空间时、`<！`开头的兜底、s[1] 为 `/` 且 s[2] 不为 `[a-z]`, `<?`开头的。这么一解释，是不是上面的正则就好理解了。
+```
+else if (s[1] === '!') {
+  // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
+  if (startsWith(s, '<!--')) {
+    node = parseComment(context)
+  } else if (startsWith(s, '<!DOCTYPE')) {
+    // Ignore DOCTYPE by a limitation.
+    node = parseBogusComment(context)
+  } else if (startsWith(s, '<![CDATA[')) {
+    if (ns !== Namespaces.HTML) {
+      node = parseCDATA(context, ancestors)
+    } else {
+      emitError(context, ErrorCodes.CDATA_IN_HTML_CONTENT)
+      node = parseBogusComment(context)
+    }
+  } else {
+    emitError(context, ErrorCodes.INCORRECTLY_OPENED_COMMENT)
+    node = parseBogusComment(context)
+  }
+} else if (s[1] === '/') {
+  // https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
+  if (s.length === 2) {
+    emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 2)
+  } else if (s[2] === '>') {
+    emitError(context, ErrorCodes.MISSING_END_TAG_NAME, 2)
+    advanceBy(context, 3)
+    continue
+  } else if (/[a-z]/i.test(s[2])) {
+    emitError(context, ErrorCodes.X_INVALID_END_TAG)
+    parseTag(context, TagType.End, parent)
+    continue
+  } else {
+    emitError(
+      context,
+      ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME,
+      2
+    )
+    node = parseBogusComment(context)
+  }
+} else if (/[a-z]/i.test(s[1])) {
+  node = parseElement(context, ancestors)
+} else if (s[1] === '?') {
+  emitError(
+    context,
+    ErrorCodes.UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME,
+    1
+  )
+  node = parseBogusComment(context)
+} else {
+  emitError(context, ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, 1)
+}
+```
+
+那我们回到 parseBogusComment 继续讲解。对于 `context.source[1] === '?'` 为 true， 注释的内容包含 `?`，否则不包含。然后寻找结束标签`>`，找不到消费全部的 source。对于 closeIndex + 1, 因为这才是整个注释的长度。
+
+接下来讲解 parseCDATA。一开始也是两个断言，祖先不能为空，祖先的命名空间不能是 Namespaces.HTML，然后也是要求 `<![CDATA[` 开头的。接着往前推进 context，在里面嵌套调用 parseChildren， 需要注意的是，这是的 `ancestors` 没有元素进栈，也就是没有改变命名空间，第二是解析模式是 ` TextModes.CDATA`，这意味着这个嵌套 parseChildren 里面只是调用 parseText 去解析节点。同时返回来的内容可能包含多个节点，这也是 parseChildren 的循环里面需要判断返回的节点是否是数组的原因了。
+```
+function parseCDATA(
+  context: ParserContext,
+  ancestors: ElementNode[]
+): TemplateChildNode[] {
+  __TEST__ &&
+    assert(last(ancestors) == null || last(ancestors)!.ns !== Namespaces.HTML)
+  __TEST__ && assert(startsWith(context.source, '<![CDATA['))
+
+  advanceBy(context, 9)
+  const nodes = parseChildren(context, TextModes.CDATA, ancestors)
+  if (context.source.length === 0) {
+    emitError(context, ErrorCodes.EOF_IN_CDATA)
+  } else {
+    __TEST__ && assert(startsWith(context.source, ']]>'))
+    advanceBy(context, 3)
+  }
+
+  return nodes
+}
+```
