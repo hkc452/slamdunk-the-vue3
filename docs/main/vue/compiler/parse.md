@@ -522,9 +522,11 @@ parseTag 不仅仅用于在 parseElement 中解析标签，同时我们在上面
 
 可以看到一上来也是先对我们的字符串进行断言，同时判断我们的字符串是否跟我们要解析的 TagType 模式是否匹配，总不能你传进来开始的tag，告诉我这是结束模式。
 
-接着拿到开始位置 start、正则去匹配标签、拿到 tag、拿到当前标签所处的命名空间，需要注意正则中 tag 开头只能是 `[a-z]`, 干完这些，我们开始往前推进 context，消耗标签、消耗空格，目的就是为了我们下面进行标签属性的解析，然后保存当前的位置和字符串，因为如果后面解析属性过程中，如果遇到了 v-pre 标签，需要重新解析标签属性，至于为什么要这样做呢，后面会讲到。
+接着拿到开始位置 start、正则去匹配标签、拿到 tag、拿到当前标签所处的命名空间（这个是 options 传进来的），需要注意正则中 tag 开头只能是 `[a-z]`, 干完这些，我们开始往前推进 context，消耗标签、消耗空格，目的就是为了我们下面进行标签属性的解析，然后保存当前的位置和字符串，因为如果后面解析属性过程中，如果遇到了 v-pre 标签，需要重新解析标签属性，至于为什么要这样做呢，后面会讲到。
 
-可以看到，在 parseTag 里面，又调用了 parseAttributes 去解析标签的属性，
+可以看到，在 parseTag 里面，又调用了 parseAttributes 去解析标签的属性，props 是我们解析回来的属性数组。接着我们又校验是不是 isPreTag，这个校验方法是从 options 透传下来的，同时也可以看到 context 在解析过程中一直处于变化过程的。接下来关键的一步来了，找找解析出来的 props 有没有 v-pre 指令，如果有，设置 context 状态，最重要的是，恢复解析 props 之前的 source 和 位置，我们要重新解析 props，可以透露的一点是，这个影响到我们需不需要对内置的一些指令进行二次转化，如果是处于 v-pre 环境下来，那么则不需要转化，这个后面细讲。
+
+我们要看看这个标签是否正确关闭，source 没了，肯定不行，上报 `EOF_IN_TAG`, 如果我们解析的是结束标签，又碰到了自闭合的字符 `/>`，也不行啊，上报 `END_TAG_WITH_TRAILING_SOLIDUS`, 同时往前推进 context。
 ```
 /**
  * Parse a tag (E.g. `<div id=a>`) with that type (start tag or end tag).
@@ -586,9 +588,38 @@ function parseTag(
     advanceBy(context, isSelfClosing ? 2 : 1)
   }
 
-  let tagType = ElementTypes.ELEMENT
-  const options = context.options
-  if (!context.inVPre && !options.isCustomElement(tag)) {
+  ...
+  
+  return {
+    type: NodeTypes.ELEMENT,
+    ns,
+    tag,
+    tagType,
+    props,
+    isSelfClosing,
+    children: [],
+    loc: getSelection(context, start),
+    codegenNode: undefined // to be created during transform phase
+  }
+}
+
+```
+parseTag 解析完属性、标签，接下来就要判断这个 Tag 标签的 tagType 了，注意我们跟 AST 的 type 区别开来，type 只是区别这个 AST 大致是什么类型， tagType 是细分到我们这个属于 ElementTypes 的什么类型，这对于后续 diff 和 transform 等很多地方起到很大的作用。
+
+康康下面，默认的 tagType 是 ElementTypes.ELEMENT，然后开启我们的判断，也是 v-pre 则跳过判断，但还有一个点就是 isCustomElement 自定义标签，这个常见的用法就是我们的自定义的 WebComponent。
+
+如果进入了第一层判断，我们首先去搜寻有没有 is 指令，对于不是平台原生 tag 且没有 is 指令的，我们认为 tagType 是 ElementTypes.COMPONENT。对于 dom 平台，
+原生 tag 就是 ` isNativeTag: tag => isHTMLTag(tag) || isSVGTag(tag)`。
+
+而如果有 is 指令 、框架核心组件、平台内建组件、大写开头的标签、tag 是 component 的，我们都认为是 ElementTypes.COMPONENT。大写开头的标签，这个我们写过 vue 都知道了，tag 是 component 更不要说了。框架核心组件就是包括了 Teleport、Suspense、KeepAlive、BaseTransition，你可以认为是与平台无关的内置组件，而平台内建组件就是 Transition、 TransitionGroup。
+
+对于 tag 为 slot，我们标识为 ElementTypes.SLOT， 嗯要特殊处理。
+
+而对于 tag 为 template的，只有它有 `if,else,else-if,for,slot` 这些指令，我们在认为他是 ElementTypes.TEMPLATE。
+```
+let tagType = ElementTypes.ELEMENT
+const options = context.options
+if (!context.inVPre && !options.isCustomElement(tag)) {
     const hasVIs = props.some(
       p => p.type === NodeTypes.DIRECTIVE && p.name === 'is'
     )
@@ -603,7 +634,7 @@ function parseTag(
     ) {
       tagType = ElementTypes.COMPONENT
     }
-
+    
     if (tag === 'slot') {
       tagType = ElementTypes.SLOT
     } else if (
@@ -616,9 +647,38 @@ function parseTag(
     ) {
       tagType = ElementTypes.TEMPLATE
     }
-  }
+}
 
-  return {
+export function isCoreComponent(tag: string): symbol | void {
+  if (isBuiltInType(tag, 'Teleport')) {
+    return TELEPORT
+  } else if (isBuiltInType(tag, 'Suspense')) {
+    return SUSPENSE
+  } else if (isBuiltInType(tag, 'KeepAlive')) {
+    return KEEP_ALIVE
+  } else if (isBuiltInType(tag, 'BaseTransition')) {
+    return BASE_TRANSITION
+  }
+}
+
+isBuiltInComponent: (tag: string): symbol | undefined => {
+    if (isBuiltInType(tag, `Transition`)) {
+      return TRANSITION
+    } else if (isBuiltInType(tag, `TransitionGroup`)) {
+      return TRANSITION_GROUP
+    }
+},
+
+const isSpecialTemplateDirective = /*#__PURE__*/ makeMap(
+  `if,else,else-if,for,slot`
+)
+
+```
+
+回到 parseTag 收尾，最后返回 AST 类型为 NodeTypes.ELEMENT，codegenNode 在 transform 阶段的 transformElement 时会生成， children 是他下一级的 node 的挂载点。对于 parseTag ，有两个点还需要补充，一个是 getNamespace ，另外一个是 parseAttributes。再次提醒的是，我们还在 parseElement 里面还没游出来呢。
+
+```
+return {
     type: NodeTypes.ELEMENT,
     ns,
     tag,
@@ -628,7 +688,5 @@ function parseTag(
     children: [],
     loc: getSelection(context, start),
     codegenNode: undefined // to be created during transform phase
-  }
 }
-
 ```
