@@ -8,7 +8,7 @@
     <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.904726df.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.1c197d36.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.0e4c4490.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.798e1f14.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.12dd5174.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.0e4c4490.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css">
   </head>
   <body>
@@ -800,7 +800,7 @@ getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
 
   return { content, isQuoted, loc: getSelection(context, start) }
 }
-</code></pre></div><p>现在我们再来看看 parseAttribute 中对 指令属性的处理。如果出于 inVPre 环境，则我们不需要对指令进行处理，但是有可能我们父级不是 inVPre，但当前 tag 有 v-pre 指令，我们可能一开始进去这里处理了，后面解析完毕之后，发现不需要二次处理，所以需要重新重新解析属性。但为什么不在这里做个校验呢？奇怪了</p> <p><code>/^(v-|:|@|#)/.test(name)</code> 这个正则是为了初步判断属性是不是指令，在进去 if 判断之后，会用正则做进一步的判断，<code>/(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i</code> 这个看起来很复杂的正则，就是为了提取属性名中的指令名、指令的参数以及执行的修饰符。</p> <p>对于分组2前面的 <code>(?::|^@|^#)</code>，属于指令的语法糖，分别代表 bind、 click 和slot，这个我们在返回指令 AST 的 name 那里也可以看到，我们需要解决的分组2的内容进行校验，分组2属于指令的参数，可以是动态的，像 <code>v-on:[event]</code>, event 就是动态参数，但是 <code>v-on:[event test]</code> 会上报 <code>X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END</code> 错误的，因为前面我们匹配属性名正则的时候，不包括空格，所以动态参数找不到结束符 <code>]</code>。参数也会返回一个 AST，类型是 SIMPLE_EXPRESSION，其中 isStatic 是由 参数是不是动态决定的。</p> <p>接着指令还会对属性内容位置进行裁剪，如果是 isQuoted ，也会把能属性内容位置中的内容的引号去掉，同时修复里面的开始、结束位置。</p> <p>最后提前返回指令的 AST，类型是 NodeTypes.DIRECTIVE， 其中 name 上面说过，exp 是讲属性内容转化成 AST 类型为 SIMPLE_EXPRESSION 的节点，arg 是指令参数，modifiers 是指令的修饰符，属于正则中的分组3里面的内容。</p> <div class="language- extra-class"><pre class="language-text"><code>if (!context.inVPre &amp;&amp; /^(v-|:|@|#)/.test(name)) {
+</code></pre></div><p>现在我们再来看看 parseAttribute 中对 指令属性的处理。如果出于 inVPre 环境，则我们不需要对指令进行处理，但是有可能我们父级不是 inVPre，但当前 tag 有 v-pre 指令，我们可能一开始进去这里处理了，后面解析完毕之后，发现不需要二次处理，所以需要重新重新解析属性。但为什么不在这里做个校验呢？奇怪了</p> <p><code>/^(v-|:|@|#)/.test(name)</code> 这个正则是为了初步判断属性是不是指令，在进去 if 判断之后，会用正则做进一步的判断，<code>/(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i</code> 这个看起来很复杂的正则，就是为了提取属性名中的指令名、指令的参数以及执行的修饰符。</p> <p>对于分组2前面的 <code>(?::|^@|^#)</code>，属于指令的语法糖，分别代表 bind、 click 和slot，这个我们在返回指令 AST 的 name 那里也可以看到，我们需要解决的分组2的内容进行校验，分组2属于指令的参数，可以是动态的，像 <code>v-on:[event]</code>, event 就是动态参数，但是 <code>v-on:[event test]</code> 会上报 <code>X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END</code> 错误的，因为前面我们匹配属性名正则的时候，不包括空格，所以动态参数找不到结束符 <code>]</code>。参数也会返回一个 AST，类型是 SIMPLE_EXPRESSION，其中 isStatic 是由 参数是不是动态决定的。</p> <p>接着指令还会对属性内容位置进行裁剪，如果是 isQuoted ，也会把能属性内容位置中的内容的引号去掉，同时修复里面的开始、结束位置。</p> <p>最后提前返回指令的 AST，类型是 NodeTypes.DIRECTIVE， 其中 name 上面说过，exp 是讲属性内容转化成 AST 类型为 SIMPLE_EXPRESSION 的节点，其中这个节点 isConstant 会在 transformExpression 节点确定的，现在需要做的就是把这点记在本子上。arg 是指令参数，modifiers 是指令的修饰符，属于正则中的分组3里面的内容、</p> <div class="language- extra-class"><pre class="language-text"><code>if (!context.inVPre &amp;&amp; /^(v-|:|@|#)/.test(name)) {
     const match = /(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i.exec(
       name
     )!
@@ -870,7 +870,57 @@ getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
       loc
     }
 }
-</code></pre></div><p>终于把 parseAttribute 讲完了，parseAttribute 回到 parseAttributes，parseAttributes 回到 parseElement，这个调用栈有点长，希望你们还没晕。</p></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+</code></pre></div><p>终于把 parseAttribute 讲完了，parseAttribute 回到 parseAttributes，parseAttributes 回到 parseTag, parseTag 回到  parseElement，这个调用栈有点长，希望你们还没晕。</p> <p>还记得我们在进去 parseTag 这个旋涡之前，parseElement 讲到那里了吗？我们讲到了 <code>const element = parseTag(context, TagType.Start, parent)</code> 这里，OK，这里我们终于拿到了我们解析的元素了。</p> <p>isPreBoundary 为 true，说明我们这个元素就是 pre ，因为 wasInPre 为 false，同理 isVPreBoundary 是 v-pre 的标识。</p> <p>对于元素自己关闭的，或者是平台的 isVoidTag ，直接返回 element，因为不需要下面的解析子元素和结束标签。</p> <p>对于解析子元素前，首先把当前元素推入 ancestors 中，ancestors 影响到了我们怎么去结束 parseChildren、namespace 的判断等等，同时这也是解析中唯一入栈的地方，也就是说，对于其他解析来说，如paeComment、paserBogusComment 等等，都是没有子元素的，我们从 parseTag 的 AST 看到 children 也可以大概猜到了。接着拿 mode，getTextMode 最上面讲过，我们可以看到，只有当前元素命名空间是 DOMNamespaces.HTML 时，getTextMode 才会返回其他的TextModes，否则一律都是 TextModes.DATA，而我们也知道，parseChildren 只对 <code>mode === TextModes.DATA || mode === TextModes.RCDATA</code> 这两个模式有细致的解析，不然都是走粗暴的 parseText。 parseChildren 解析完毕之后，返回的 nodes 节点，塞入  element 的 children，同时把 element 从 ancestors 中弹出。然后我们看看我们的 element 有没有关闭标签，如果有，调用 parseTag 去解析，别忘记前面这个关闭标签不能有属性，这个返回的 AST 不需要保存，我们只是为了推进 context。如果没有关闭标签，上报 <code>X_MISSING_END_TAG</code>, 而如果甚至连 source 也没了，element 的 tag 是 script，且当前第一个元素是注释，上报 <code>EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT</code>,很懵圈是不，来，给你看测试用例,
+<code>&lt;script&gt;&lt;!--console.log('hello')</code>, get ？</p> <p>parseElement 修复结束标签的位置，同时重置 context 中的 inPre 和 inVPre, 可以看到 parseElement 相比于 parseTag 的AST，就是添加了子元素的 AST，同时修复 loc，还有消费结束标签。</p> <div class="language- extra-class"><pre class="language-text"><code>function parseElement(
+  context: ParserContext,
+  ancestors: ElementNode[]
+): ElementNode | undefined {
+  __TEST__ &amp;&amp; assert(/^&lt;[a-z]/i.test(context.source))
+
+  // Start tag.
+  const wasInPre = context.inPre
+  const wasInVPre = context.inVPre
+  const parent = last(ancestors)
+  const element = parseTag(context, TagType.Start, parent)
+  const isPreBoundary = context.inPre &amp;&amp; !wasInPre
+  const isVPreBoundary = context.inVPre &amp;&amp; !wasInVPre
+
+  if (element.isSelfClosing || context.options.isVoidTag(element.tag)) {
+    return element
+  }
+
+  // Children.
+  ancestors.push(element)
+  const mode = context.options.getTextMode(element, parent)
+  const children = parseChildren(context, mode, ancestors)
+  ancestors.pop()
+
+  element.children = children
+
+  // End tag.
+  if (startsWithEndTagOpen(context.source, element.tag)) {
+    parseTag(context, TagType.End, parent)
+  } else {
+    emitError(context, ErrorCodes.X_MISSING_END_TAG, 0, element.loc.start)
+    if (context.source.length === 0 &amp;&amp; element.tag.toLowerCase() === 'script') {
+      const first = children[0]
+      if (first &amp;&amp; startsWith(first.loc.source, '&lt;!--')) {
+        emitError(context, ErrorCodes.EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT)
+      }
+    }
+  }
+
+  element.loc = getSelection(context, element.loc.start)
+
+  if (isPreBoundary) {
+    context.inPre = false
+  }
+  if (isVPreBoundary) {
+    context.inVPre = false
+  }
+  return element
+}
+</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="prev">
         compiler
@@ -879,6 +929,6 @@ getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.904726df.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.1c197d36.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.798e1f14.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.12dd5174.js" defer></script>
   </body>
 </html>
