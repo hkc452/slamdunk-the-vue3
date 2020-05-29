@@ -8,7 +8,7 @@
     <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.014d2eb6.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.69bb4dea.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.0e4c4490.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.5cce7937.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.62ea020d.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.0e4c4490.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css">
   </head>
   <body>
@@ -968,7 +968,7 @@ function pushNode(nodes: TemplateChildNode[], node: TemplateChildNode): void {
 
   nodes.push(node)
 }
-</code></pre></div><p>parseChildren 收尾部分，是要要对节点中的 NodeTypes.TEXT 中空白节点进行处理。对于 TextModes.RAWTEXT 模式就不进行处理了。</p> <p>如果是其他模式，context.inPre 为 false，循环所有的节点。如果<code>!/[^\t\r\n\f ]/.test(node.content)</code> 为真， 表示这个节点是空白节点，对于空白节点，注释也写的很清楚了，对于第一个或者最后一个空白节点，可以忽略，同时如果移除注释前后的空白节点，而对于夹在两个元素中间的空白节点，如果这个空白节点是含有换行符，才才进行移除，如果要移除节点，就将 <code>removedWhitespace</code> 设为 true,这样在最后返回的时候，用 filter(Boolean) 过滤置空的空白节点，<code>nodes[i] = null as any</code> 就是这样置空，如果空白节点不满足上面的条件，把空白节点的内容缩减成一个空白。最后而对于不是空白节点的 NodeTypes.TEXT 节点，移除内容中的空白。</p> <p>如果对于 context.inPre 为 true ，而父级就是 pre 元素的，移除第一个节点的换行符，也就是说，我们只关心 pre 下面第一个节点的开头不能是换行符，孙子节点不在在乎。</p> <div class="language- extra-class"><pre class="language-text"><code>// Whitespace management for more efficient output
+</code></pre></div><p>parseChildren 收尾部分，是要要对节点中的 NodeTypes.TEXT 中空白节点进行处理。对于 TextModes.RAWTEXT 模式就不进行处理了。</p> <p>如果是其他模式，context.inPre 为 false，循环所有的节点。如果<code>!/[^\t\r\n\f ]/.test(node.content)</code> 为真， 表示这个节点是空白节点，对于空白节点，注释也写的很清楚了，对于第一个或者最后一个空白节点，可以忽略，同时如果移除注释前后的空白节点，而对于夹在两个元素中间的空白节点，如果这个空白节点是含有换行符，才才进行移除，如果要移除节点，就将 <code>removedWhitespace</code> 设为 true,这样在最后返回的时候，用 filter(Boolean) 过滤置空的空白节点，<code>nodes[i] = null as any</code> 就是这样置空。如果空白节点不满足上面的条件，把空白节点的内容缩减成一个空白。最后而对于不是空白节点的 NodeTypes.TEXT 节点，移除内容中的空白。</p> <p>如果对于 context.inPre 为 true ，而父级就是 pre 元素的，移除第一个节点的换行符，也就是说，我们只关心 pre 下面第一个节点的开头不能是换行符，孙子节点不在在乎。</p> <div class="language- extra-class"><pre class="language-text"><code>// Whitespace management for more efficient output
   // (same as v2 whitespace: 'condense')
   let removedWhitespace = false
   if (mode !== TextModes.RAWTEXT) {
@@ -1017,7 +1017,22 @@ function pushNode(nodes: TemplateChildNode[], node: TemplateChildNode): void {
 
   return removedWhitespace ? nodes.filter(Boolean) : nodes
 
-</code></pre></div><p>长呼一口气，parse 模块终于讲完了。只要是知道里面 parseChildren 是个嵌套调用的过程，里面还要进行一定的容错，同时 ns 和 mode 会影响解析，打完收工。</p></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+</code></pre></div><p>补充说一点，看看下面两个测试用例，为什么第一个测试用例要移除空白节点，第二个不用呢，因为第一个用例的空白节点是跟 span 同级的，移除第一个和最后空白节点，第二个用例中的空白节点，属于同级元素间的空白节点且没有换行符，所以不需要移除。</p> <div class="language- extra-class"><pre class="language-text"><code>it('should remove whitespaces at start/end inside an element', () =&gt; {
+  const ast = baseParse(`&lt;div&gt;   &lt;span/&gt;    &lt;/div&gt;`)
+  expect((ast.children[0] as ElementNode).children.length).toBe(1)
+})
+it('should NOT remove whitespaces w/o newline between elements', () =&gt; {
+  const ast = baseParse(`&lt;div/&gt; &lt;div/&gt; &lt;div/&gt;`)
+  expect(ast.children.length).toBe(5)
+  expect(ast.children.map(c =&gt; c.type)).toMatchObject([
+    NodeTypes.ELEMENT,
+    NodeTypes.TEXT,
+    NodeTypes.ELEMENT,
+    NodeTypes.TEXT,
+    NodeTypes.ELEMENT
+  ])
+})
+</code></pre></div><p>长呼一口气，parse 模块终于讲完了。只要是知道里面 parseChildren 是个嵌套调用的过程，里面还要进行一定的容错，同时 ns 和 mode 会影响解析，打完收工</p></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="prev">
         compiler
@@ -1026,6 +1041,6 @@ function pushNode(nodes: TemplateChildNode[], node: TemplateChildNode): void {
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.014d2eb6.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.69bb4dea.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.5cce7937.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.62ea020d.js" defer></script>
   </body>
 </html>
