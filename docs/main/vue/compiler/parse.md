@@ -933,6 +933,12 @@ function parseAttributeValue(
 
 `/^(v-|:|@|#)/.test(name)` 这个正则是为了初步判断属性是不是指令，在进去 if 判断之后，会用正则做进一步的判断，`/(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i` 这个看起来很复杂的正则，就是为了提取属性名中的指令名、指令的参数以及执行的修饰符。
 
+对于分组2前面的 `(?::|^@|^#)`，属于指令的语法糖，分别代表 bind、 click 和slot，这个我们在返回指令 AST 的 name 那里也可以看到，我们需要解决的分组2的内容进行校验，分组2属于指令的参数，可以是动态的，像 ` v-on:[event]`, event 就是动态参数，但是 ` v-on:[event test]` 会上报 `X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END` 错误的，因为前面我们匹配属性名正则的时候，不包括空格，所以动态参数找不到结束符 `]`。参数也会返回一个 AST，类型是 SIMPLE_EXPRESSION，其中 isStatic 是由 参数是不是动态决定的。
+
+接着指令还会对属性内容位置进行裁剪，如果是 isQuoted ，也会把能属性内容位置中的内容的引号去掉，同时修复里面的开始、结束位置。
+
+最后提前返回指令的 AST，类型是 NodeTypes.DIRECTIVE， 其中 name 上面说过，exp 是讲属性内容转化成 AST 类型为 SIMPLE_EXPRESSION 的节点，arg 是指令参数，modifiers 是指令的修饰符，属于正则中的分组3里面的内容。
+
 ```
 if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
     const match = /(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i.exec(
@@ -1005,3 +1011,4 @@ if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
     }
 }
 ```
+终于把 parseAttribute 讲完了，parseAttribute 回到 parseAttributes，parseAttributes 回到 parseElement，这个调用栈有点长，希望你们还没晕。
