@@ -937,7 +937,7 @@ function parseAttributeValue(
 
 接着指令还会对属性内容位置进行裁剪，如果是 isQuoted ，也会把能属性内容位置中的内容的引号去掉，同时修复里面的开始、结束位置。
 
-最后提前返回指令的 AST，类型是 NodeTypes.DIRECTIVE， 其中 name 上面说过，exp 是讲属性内容转化成 AST 类型为 SIMPLE_EXPRESSION 的节点，arg 是指令参数，modifiers 是指令的修饰符，属于正则中的分组3里面的内容。
+最后提前返回指令的 AST，类型是 NodeTypes.DIRECTIVE， 其中 name 上面说过，exp 是讲属性内容转化成 AST 类型为 SIMPLE_EXPRESSION 的节点，其中这个节点 isConstant 会在 transformExpression 节点确定的，现在需要做的就是把这点记在本子上。arg 是指令参数，modifiers 是指令的修饰符，属于正则中的分组3里面的内容、
 
 ```
 if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
@@ -1011,4 +1011,67 @@ if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
     }
 }
 ```
-终于把 parseAttribute 讲完了，parseAttribute 回到 parseAttributes，parseAttributes 回到 parseElement，这个调用栈有点长，希望你们还没晕。
+终于把 parseAttribute 讲完了，parseAttribute 回到 parseAttributes，parseAttributes 回到 parseTag, parseTag 回到  parseElement，这个调用栈有点长，希望你们还没晕。
+
+还记得我们在进去 parseTag 这个旋涡之前，parseElement 讲到那里了吗？我们讲到了 `  const element = parseTag(context, TagType.Start, parent)` 这里，OK，这里我们终于拿到了我们解析的元素了。
+
+isPreBoundary 为 true，说明我们这个元素就是 pre ，因为 wasInPre 为 false，同理 isVPreBoundary 是 v-pre 的标识。
+
+对于元素自己关闭的，或者是平台的 isVoidTag ，直接返回 element，因为不需要下面的解析子元素和结束标签。
+
+对于解析子元素前，首先把当前元素推入 ancestors 中，ancestors 影响到了我们怎么去结束 parseChildren、namespace 的判断等等，同时这也是解析中唯一入栈的地方，也就是说，对于其他解析来说，如paeComment、paserBogusComment 等等，都是没有子元素的，我们从 parseTag 的 AST 看到 children 也可以大概猜到了。接着拿 mode，getTextMode 最上面讲过，我们可以看到，只有当前元素命名空间是 DOMNamespaces.HTML 时，getTextMode 才会返回其他的TextModes，否则一律都是 TextModes.DATA，而我们也知道，parseChildren 只对 `mode === TextModes.DATA || mode === TextModes.RCDATA` 这两个模式有细致的解析，不然都是走粗暴的 parseText。 parseChildren 解析完毕之后，返回的 nodes 节点，塞入  element 的 children，同时把 element 从 ancestors 中弹出。然后我们看看我们的 element 有没有关闭标签，如果有，调用 parseTag 去解析，别忘记前面这个关闭标签不能有属性，这个返回的 AST 不需要保存，我们只是为了推进 context。如果没有关闭标签，上报 `X_MISSING_END_TAG`, 而如果甚至连 source 也没了，element 的 tag 是 script，且当前第一个元素是注释，上报 `EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT`,很懵圈是不，来，给你看测试用例, 
+`<script><!--console.log('hello')`, get ？
+
+parseElement 修复结束标签的位置，同时重置 context 中的 inPre 和 inVPre, 可以看到 parseElement 相比于 parseTag 的AST，就是添加了子元素的 AST，同时修复 loc，还有消费结束标签。
+```
+function parseElement(
+  context: ParserContext,
+  ancestors: ElementNode[]
+): ElementNode | undefined {
+  __TEST__ && assert(/^<[a-z]/i.test(context.source))
+
+  // Start tag.
+  const wasInPre = context.inPre
+  const wasInVPre = context.inVPre
+  const parent = last(ancestors)
+  const element = parseTag(context, TagType.Start, parent)
+  const isPreBoundary = context.inPre && !wasInPre
+  const isVPreBoundary = context.inVPre && !wasInVPre
+
+  if (element.isSelfClosing || context.options.isVoidTag(element.tag)) {
+    return element
+  }
+
+  // Children.
+  ancestors.push(element)
+  const mode = context.options.getTextMode(element, parent)
+  const children = parseChildren(context, mode, ancestors)
+  ancestors.pop()
+
+  element.children = children
+
+  // End tag.
+  if (startsWithEndTagOpen(context.source, element.tag)) {
+    parseTag(context, TagType.End, parent)
+  } else {
+    emitError(context, ErrorCodes.X_MISSING_END_TAG, 0, element.loc.start)
+    if (context.source.length === 0 && element.tag.toLowerCase() === 'script') {
+      const first = children[0]
+      if (first && startsWith(first.loc.source, '<!--')) {
+        emitError(context, ErrorCodes.EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT)
+      }
+    }
+  }
+
+  element.loc = getSelection(context, element.loc.start)
+
+  if (isPreBoundary) {
+    context.inPre = false
+  }
+  if (isVPreBoundary) {
+    context.inVPre = false
+  }
+  return element
+}
+```
+
