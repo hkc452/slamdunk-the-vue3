@@ -524,7 +524,7 @@ parseTag 不仅仅用于在 parseElement 中解析标签，同时我们在上面
 
 接着拿到开始位置 start、正则去匹配标签、拿到 tag、拿到当前标签所处的命名空间（这个是 options 传进来的），需要注意正则中 tag 开头只能是 `[a-z]`, 干完这些，我们开始往前推进 context，消耗标签、消耗空格，目的就是为了我们下面进行标签属性的解析，然后保存当前的位置和字符串，因为如果后面解析属性过程中，如果遇到了 v-pre 标签，需要重新解析标签属性，至于为什么要这样做呢，后面会讲到。
 
-可以看到，在 parseTag 里面，又调用了 parseAttributes 去解析标签的属性，props 是我们解析回来的属性数组。接着我们又校验是不是 isPreTag，这个校验方法是从 options 透传下来的，同时也可以看到 context 在解析过程中一直处于变化过程的。接下来关键的一步来了，找找解析出来的 props 有没有 v-pre 指令，如果有，设置 context 状态，最重要的是，恢复解析 props 之前的 source 和 位置，我们要重新解析 props，可以透露的一点是，这个影响到我们需不需要对内置的一些指令进行二次转化，如果是处于 v-pre 环境下来，那么则不需要转化，这个后面细讲。
+可以看到，在 parseTag 里面，又调用了 parseAttributes 去解析标签的属性，props 是我们解析回来的属性数组。接着我们又校验是不是 isPreTag，这个校验方法是从 options 透传下来的，同时也可以看到 context 在解析过程中一直处于变化过程的。接下来关键的一步来了，如果以前不是 isInPre 但是解析出来的 props 有 v-pre 指令，如果有,context.isInPre 就为 true 状态，最重要的是，恢复解析 props 之前的 source 和 位置，我们要重新解析 props，可以透露的一点是，这个影响到我们需不需要对内置的一些指令进行二次转化，如果是处于 v-pre 环境下来，那么则不需要转化，这个后面细讲。
 
 我们要看看这个标签是否正确关闭，source 没了，肯定不行，上报 `EOF_IN_TAG`, 如果我们解析的是结束标签，又碰到了自闭合的字符 `/>`，也不行啊，上报 `END_TAG_WITH_TRAILING_SOLIDUS`, 同时往前推进 context。
 ```
@@ -753,4 +753,255 @@ getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
     }
     return ns
 },
+```
+
+OK，那现在就讲讲 parseAttributes ，看看是怎么解析属性的，也在这里揭秘为什么 v-pre 要重新解析一次属性。 props 是最后返回去的属性数组，同时维护一个 attributeNames 用于解析属性过程中进行去重校验。接下来，也是一个 while 不断去读取字符串，如果 source 消耗完毕 又或者遇到了标签结束的符号 `>` 或 `/>`, 才退出循环。 进去循环后，如果一开波就给我们一个 `/`，上报 `UNEXPECTED_SOLIDUS_IN_TAG` 错误，往前推进 context 同时消耗空格。如果要开始解析具体属性了，但是 type 是 `TagType.End`，这也不行，不能在结束标签带属性，上报 `END_TAG_WITH_ATTRIBUTES`  错误。接着使用 parseAttribute 去解析具体某个属性，解析成功后，再次校验是否是 TagType.Start， 如果是，塞入 props 数组，同时对字符串进行校验，如果下个属性与当前属性没有 `[^\t\r\n\f />]` 这些做间隔，上报 `MISSING_WHITESPACE_BETWEEN_ATTRIBUTES` 错误，就是类似 `<div id="foo"class="bar"></div>`, id 和  class 之间没有间隔，循环最后消耗字符串中的空格。就这样的一个循环，把 Tag 上的全部标签解析出来，最后 return 出去。当然具体单个属性的解析在 parseAttribute 函数里面，下面就讲到。
+
+```
+function parseAttributes(
+  context: ParserContext,
+  type: TagType
+): (AttributeNode | DirectiveNode)[] {
+  const props = []
+  const attributeNames = new Set<string>()
+  while (
+    context.source.length > 0 &&
+    !startsWith(context.source, '>') &&
+    !startsWith(context.source, '/>')
+  ) {
+    if (startsWith(context.source, '/')) {
+      emitError(context, ErrorCodes.UNEXPECTED_SOLIDUS_IN_TAG)
+      advanceBy(context, 1)
+      advanceSpaces(context)
+      continue
+    }
+    if (type === TagType.End) {
+      emitError(context, ErrorCodes.END_TAG_WITH_ATTRIBUTES)
+    }
+
+    const attr = parseAttribute(context, attributeNames)
+    if (type === TagType.Start) {
+      props.push(attr)
+    }
+
+    if (/^[^\t\r\n\f />]/.test(context.source)) {
+      emitError(context, ErrorCodes.MISSING_WHITESPACE_BETWEEN_ATTRIBUTES)
+    }
+    advanceSpaces(context)
+  }
+  return props
+}
+```
+对于具体属性解析，分成两部分，parseAttribute 和 parseAttributeValue，因为我们知道属性大部分有值。
+
+闲话不多说，看看 parseAttribute。断言 source 已经思考见惯了，接着保存 name 的位置，同时尝试用正则去匹配字符串获取属性的名字 name，这个正则也是很宽泛，就是排除空白字符和结束字符，同时对于属性名字的第一位允许 `=`，虽然在下面会上报 `UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME` 错误，属性名字的后面就不允许 `=` 符号了，毕竟这是用来切割属性名和属性值的。
+
+nameSet 就是我们在上面 parseAttributes 传下来的 set 集合，如果重复了，上报 DUPLICATE_ATTRIBUTE。记着把我们的属性名加入 set 集合里面。
+
+除了等号不能出现在集合名， `/["'<]/g` 这些也不可以，对于检测到的，上报 `UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME` 错误。
+
+继续往前推进，接着开始解析属性值，对于一个属性而言，不一定有属性值，所以需要正则匹配判断一下，没问题之后，需要等号前面可能存在的空格、等号长度、等号后面的空格，做完这些预备动作，才开始真正调用 parseAttributeValue 去解析属性值，当然如果解析不到属性值，上报 `MISSING_ATTRIBUTE_VALUE` 错误。
+
+在 返回 Attribute 之前，会对 directive 指令属性进行解析，这也是我们下面 parseAttribute 省略号的地方，假设我们的属性不是指令， 最后返回的 AST 结构就是类型为 `NodeTypes.ATTRIBUTE`, 名字是属性名字， value 是 属性值 AST 表示，也可能为空，如果不为空，类型是 `NodeTypes.TEXT`，value 里面的 value 用  parseAttribute 里面返回的 ast 表示。
+```
+function parseAttribute(
+  context: ParserContext,
+  nameSet: Set<string>
+): AttributeNode | DirectiveNode {
+  __TEST__ && assert(/^[^\t\r\n\f />]/.test(context.source))
+
+  // Name.
+  const start = getCursor(context)
+  const match = /^[^\t\r\n\f />][^\t\r\n\f />=]*/.exec(context.source)!
+  const name = match[0]
+
+  if (nameSet.has(name)) {
+    emitError(context, ErrorCodes.DUPLICATE_ATTRIBUTE)
+  }
+  nameSet.add(name)
+
+  if (name[0] === '=') {
+    emitError(context, ErrorCodes.UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME)
+  }
+  {
+    const pattern = /["'<]/g
+    let m: RegExpExecArray | null
+    while ((m = pattern.exec(name))) {
+      emitError(
+        context,
+        ErrorCodes.UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME,
+        m.index
+      )
+    }
+  }
+
+  advanceBy(context, name.length)
+
+  // Value
+  let value:
+    | {
+        content: string
+        isQuoted: boolean
+        loc: SourceLocation
+      }
+    | undefined = undefined
+
+  if (/^[\t\r\n\f ]*=/.test(context.source)) {
+    advanceSpaces(context)
+    advanceBy(context, 1)
+    advanceSpaces(context)
+    value = parseAttributeValue(context)
+    if (!value) {
+      emitError(context, ErrorCodes.MISSING_ATTRIBUTE_VALUE)
+    }
+  }
+  const loc = getSelection(context, start)
+
+  ... 
+ 
+  return {
+    type: NodeTypes.ATTRIBUTE,
+    name,
+    value: value && {
+      type: NodeTypes.TEXT,
+      content: value.content,
+      loc: value.loc
+    },
+    loc
+  }
+}
+```
+对于 parseAttribute ，上面我们忽略了两个点，第一个 parseAttributeValue ，第二是指令属性。
+
+先看看 parseAttributeValue，首先保存开始位置，这都是为了最后 AST 的 loc，然后看看我们的属性值是不是被 `"` 或者 `'` 包起来了，如果包起来了，解析前先往前推进一位，同时寻找结束符，如果找不到，直接消费完整个字符串， parseTextData 我们在上面讲过了，如果找到了，消费 endIndex 长度个字符串，同时最后消费结束符。
+
+如果我们的属性值没有被引号包住，首先正则匹配一下，基本就是不允许空白符和标签'`>`，如果匹配失败，直接返回，然后进行二次正则校验，不允许 `/["'<=`]`,需要注意 也不寻 `<` 和 `=`，否则上报 `UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE`。这些校验都没问题，就返回 value 的 AST 表示，注意 `isQuoted` 也要返回去，在 parseAttribute 中修复内容 loc。
+
+```
+function parseAttributeValue(
+  context: ParserContext
+):
+  | {
+      content: string
+      isQuoted: boolean
+      loc: SourceLocation
+    }
+  | undefined {
+  const start = getCursor(context)
+  let content: string
+
+  const quote = context.source[0]
+  const isQuoted = quote === `"` || quote === `'`
+  if (isQuoted) {
+    // Quoted value.
+    advanceBy(context, 1)
+
+    const endIndex = context.source.indexOf(quote)
+    if (endIndex === -1) {
+      content = parseTextData(
+        context,
+        context.source.length,
+        TextModes.ATTRIBUTE_VALUE
+      )
+    } else {
+      content = parseTextData(context, endIndex, TextModes.ATTRIBUTE_VALUE)
+      advanceBy(context, 1)
+    }
+  } else {
+    // Unquoted
+    const match = /^[^\t\r\n\f >]+/.exec(context.source)
+    if (!match) {
+      return undefined
+    }
+    const unexpectedChars = /["'<=`]/g
+    let m: RegExpExecArray | null
+    while ((m = unexpectedChars.exec(match[0]))) {
+      emitError(
+        context,
+        ErrorCodes.UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE,
+        m.index
+      )
+    }
+    content = parseTextData(context, match[0].length, TextModes.ATTRIBUTE_VALUE)
+  }
+
+  return { content, isQuoted, loc: getSelection(context, start) }
+}
+```
+
+现在我们再来看看 parseAttribute 中对 指令属性的处理。如果出于 inVPre 环境，则我们不需要对指令进行处理，但是有可能我们父级不是 inVPre，但当前 tag 有 v-pre 指令，我们可能一开始进去这里处理了，后面解析完毕之后，发现不需要二次处理，所以需要重新重新解析属性。但为什么不在这里做个校验呢？奇怪了
+
+`/^(v-|:|@|#)/.test(name)` 这个正则是为了初步判断属性是不是指令，在进去 if 判断之后，会用正则做进一步的判断，`/(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i` 这个看起来很复杂的正则，就是为了提取属性名中的指令名、指令的参数以及执行的修饰符。
+
+```
+if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
+    const match = /(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i.exec(
+      name
+    )!
+    
+    let arg: ExpressionNode | undefined
+    
+    if (match[2]) {
+      const startOffset = name.indexOf(match[2])
+      const loc = getSelection(
+        context,
+        getNewPosition(context, start, startOffset),
+        getNewPosition(context, start, startOffset + match[2].length)
+      )
+      let content = match[2]
+      let isStatic = true
+    
+      if (content.startsWith('[')) {
+        isStatic = false
+    
+        if (!content.endsWith(']')) {
+          emitError(
+            context,
+            ErrorCodes.X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END
+          )
+        }
+    
+        content = content.substr(1, content.length - 2)
+      }
+    
+      arg = {
+        type: NodeTypes.SIMPLE_EXPRESSION,
+        content,
+        isStatic,
+        isConstant: isStatic,
+        loc
+      }
+    }
+    
+    if (value && value.isQuoted) {
+      const valueLoc = value.loc
+      valueLoc.start.offset++
+      valueLoc.start.column++
+      valueLoc.end = advancePositionWithClone(valueLoc.start, value.content)
+      valueLoc.source = valueLoc.source.slice(1, -1)
+    }
+    
+    return {
+      type: NodeTypes.DIRECTIVE,
+      name:
+        match[1] ||
+        (startsWith(name, ':')
+          ? 'bind'
+          : startsWith(name, '@')
+            ? 'on'
+            : 'slot'),
+      exp: value && {
+        type: NodeTypes.SIMPLE_EXPRESSION,
+        content: value.content,
+        isStatic: false,
+        // Treat as non-constant by default. This can be potentially set to
+        // true by `transformExpression` to make it eligible for hoisting.
+        isConstant: false,
+        loc: value.loc
+      },
+      arg,
+      modifiers: match[3] ? match[3].substr(1).split('.') : [],
+      loc
+    }
+}
 ```
