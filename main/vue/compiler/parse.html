@@ -8,7 +8,7 @@
     <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.3f54ddfd.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.cf682ced.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.c06d5dbb.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.ff641393.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.d1a2d164.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.c06d5dbb.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css">
   </head>
   <body>
@@ -604,6 +604,54 @@ const isSpecialTemplateDirective = /*#__PURE__*/ makeMap(
     loc: getSelection(context, start),
     codegenNode: undefined // to be created during transform phase
 }
+</code></pre></div><p>getNamespace 主要是对为了获取正确的命名空间，正如我们在上面一直说的，不同的命名空间会对解析是有影响的，对于 dom 平台来说，目前就三种命名空间，<code>DOMNamespaces.HTML</code> html 命名空间，<code>DOMNamespaces.MATH_ML</code> math ml 命名空间，<code>DOMNamespaces.SVG</code> svg 命名空间。</p> <p>在 getNamespace 内部，首先拿到父级的命名空间，默认是 DOMNamespaces.HTML。需要注意的是，如果没有我们没有对 ns 变量进行覆盖或者提前 return，则说明当前 tag 的 ns 跟 父级的 ns 一样，因为函数最后的把 ns 返回去的。</p> <p>接下来将针对父级存在的情况下进行解析，如果父级 ns 是 MATH_ML 且 父级标签是 <code>annotation-xml</code> ，这时当前标签是 <code>svg</code>，我们认为是处于 svg 的 ns，而这时标签不是 svg 但是父级 annotation-xml 标签的 属性里面有申明下面是 html 即 <code>text/html</code> 或 <code>application/xhtml+xml</code>， 我们也认为是 HTML 的 ns。对于父级标签 不是<code>annotation-xml</code> ，且<code>/^m(?:[ions]|text)$/.test(parent.tag) &amp;&amp; tag !== 'mglyph' &amp;&amp; tag !== 'malignmark'</code>,我们还是认为在 HTML 的 ns。如果上面条件都不满足， MATH_ML 这个 ns 讲传递给当前 tag。</p> <p>而对于父级是 SVG 的 ns，只有父级 tag 是 <code>parent.tag === 'foreignObject' || parent.tag === 'desc' || parent.tag === 'title'</code> 这些 tag 的时候，当前 tag 才算在 HTML 的ns，否则继续 SVG 的 ns。</p> <p>最后对于父级 ns 为 HTML 的处理，主要当前 tag 是 <code>svg</code> 或者 <code>math</code>, 则会变化 ns 为 SVG 或者 MATH_ML。</p> <div class="language- extra-class"><pre class="language-text"><code>// https://html.spec.whatwg.org/multipage/parsing.html#tree-construction-dispatcher
+getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
+    let ns = parent ? parent.ns : DOMNamespaces.HTML
+
+    if (parent &amp;&amp; ns === DOMNamespaces.MATH_ML) {
+      if (parent.tag === 'annotation-xml') {
+        if (tag === 'svg') {
+          return DOMNamespaces.SVG
+        }
+        if (
+          parent.props.some(
+            a =&gt;
+              a.type === NodeTypes.ATTRIBUTE &amp;&amp;
+              a.name === 'encoding' &amp;&amp;
+              a.value != null &amp;&amp;
+              (a.value.content === 'text/html' ||
+                a.value.content === 'application/xhtml+xml')
+          )
+        ) {
+          ns = DOMNamespaces.HTML
+        }
+      } else if (
+        /^m(?:[ions]|text)$/.test(parent.tag) &amp;&amp;
+        tag !== 'mglyph' &amp;&amp;
+        tag !== 'malignmark'
+      ) {
+        ns = DOMNamespaces.HTML
+      }
+    } else if (parent &amp;&amp; ns === DOMNamespaces.SVG) {
+      if (
+        parent.tag === 'foreignObject' ||
+        parent.tag === 'desc' ||
+        parent.tag === 'title'
+      ) {
+        ns = DOMNamespaces.HTML
+      }
+    }
+
+    if (ns === DOMNamespaces.HTML) {
+      if (tag === 'svg') {
+        return DOMNamespaces.SVG
+      }
+      if (tag === 'math') {
+        return DOMNamespaces.MATH_ML
+      }
+    }
+    return ns
+},
 </code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="prev">
@@ -613,6 +661,6 @@ const isSpecialTemplateDirective = /*#__PURE__*/ makeMap(
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.3f54ddfd.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.cf682ced.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.ff641393.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.d1a2d164.js" defer></script>
   </body>
 </html>
