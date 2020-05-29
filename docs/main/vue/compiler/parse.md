@@ -690,3 +690,67 @@ return {
     codegenNode: undefined // to be created during transform phase
 }
 ```
+getNamespace 主要是对为了获取正确的命名空间，正如我们在上面一直说的，不同的命名空间会对解析是有影响的，对于 dom 平台来说，目前就三种命名空间，`DOMNamespaces.HTML` html 命名空间，`DOMNamespaces.MATH_ML` math ml 命名空间，`DOMNamespaces.SVG` svg 命名空间。 
+
+在 getNamespace 内部，首先拿到父级的命名空间，默认是 DOMNamespaces.HTML。需要注意的是，如果没有我们没有对 ns 变量进行覆盖或者提前 return，则说明当前 tag 的 ns 跟 父级的 ns 一样，因为函数最后的把 ns 返回去的。
+
+接下来将针对父级存在的情况下进行解析，如果父级 ns 是 MATH_ML 且 父级标签是 `annotation-xml` ，这时当前标签是 `svg`，我们认为是处于 svg 的 ns，而这时标签不是 svg 但是父级 annotation-xml 标签的 属性里面有申明下面是 html 即 `text/html` 或 `application/xhtml+xml`， 我们也认为是 HTML 的 ns。对于父级标签 不是`annotation-xml` ，且`/^m(?:[ions]|text)$/.test(parent.tag) &&
+        tag !== 'mglyph' &&
+        tag !== 'malignmark'`,我们还是认为在 HTML 的 ns。如果上面条件都不满足， MATH_ML 这个 ns 讲传递给当前 tag。
+
+而对于父级是 SVG 的 ns，只有父级 tag 是 ` parent.tag === 'foreignObject' ||
+        parent.tag === 'desc' ||
+        parent.tag === 'title'` 这些 tag 的时候，当前 tag 才算在 HTML 的ns，否则继续 SVG 的 ns。
+        
+最后对于父级 ns 为 HTML 的处理，主要当前 tag 是 `svg` 或者 `math`, 则会变化 ns 为 SVG 或者 MATH_ML。
+
+```
+// https://html.spec.whatwg.org/multipage/parsing.html#tree-construction-dispatcher
+getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
+    let ns = parent ? parent.ns : DOMNamespaces.HTML
+
+    if (parent && ns === DOMNamespaces.MATH_ML) {
+      if (parent.tag === 'annotation-xml') {
+        if (tag === 'svg') {
+          return DOMNamespaces.SVG
+        }
+        if (
+          parent.props.some(
+            a =>
+              a.type === NodeTypes.ATTRIBUTE &&
+              a.name === 'encoding' &&
+              a.value != null &&
+              (a.value.content === 'text/html' ||
+                a.value.content === 'application/xhtml+xml')
+          )
+        ) {
+          ns = DOMNamespaces.HTML
+        }
+      } else if (
+        /^m(?:[ions]|text)$/.test(parent.tag) &&
+        tag !== 'mglyph' &&
+        tag !== 'malignmark'
+      ) {
+        ns = DOMNamespaces.HTML
+      }
+    } else if (parent && ns === DOMNamespaces.SVG) {
+      if (
+        parent.tag === 'foreignObject' ||
+        parent.tag === 'desc' ||
+        parent.tag === 'title'
+      ) {
+        ns = DOMNamespaces.HTML
+      }
+    }
+
+    if (ns === DOMNamespaces.HTML) {
+      if (tag === 'svg') {
+        return DOMNamespaces.SVG
+      }
+      if (tag === 'math') {
+        return DOMNamespaces.MATH_ML
+      }
+    }
+    return ns
+},
+```
