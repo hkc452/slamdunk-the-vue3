@@ -459,7 +459,7 @@ function parseCDATA(
   return nodes
 }
 ```
-回到循环, 当 `s[1]` 是 `/` 时， 如果长度就为2，上报 `EOF_BEFORE_TAG_NAME` 错误，看英文都大概知道啥意思了，没找到 tag 就结束了。如果 `s[2] === '>'`， 上报 `MISSING_END_TAG_NAME` 错误， 往前推进3长度，如果 emitError 抛出错误的话，相当于解析器容忍这个错误， continue 继续解析。如果 `/[a-z]/i.test(s[2])` 成立，就是类似 `</div>`，我们都知道 html 标签要么是成对出现或者 Void Tag,而这种情况会在下面 parseElement 被处理，在这里，我们上报 `X_INVALID_END_TAG` 错误， 并且调用 parseTag 解析节点。最后，如果前面的判断都不满足，就掉入前面所说的 parseBogusComment 中正则匹配的最后一项，同时上报 `INVALID_FIRST_CHARACTER_OF_TAG_NAME` 错误。
+回到循环, 当 `s[1]` 是 `/` 时， 如果长度就为2，上报 `EOF_BEFORE_TAG_NAME` 错误，看英文都大概知道啥意思了，没找到 tag 就结束了。如果 `s[2] === '>'`， 上报 `MISSING_END_TAG_NAME` 错误， 往前推进3长度，如果 emitError 不抛出错误的话，相当于解析器容忍这个错误， continue 继续解析。如果 `/[a-z]/i.test(s[2])` 成立，就是类似 `</div>`，我们都知道 html 标签要么是成对出现或者 Void Tag,而这种情况会在下面 parseElement 被处理，在这里，我们上报 `X_INVALID_END_TAG` 错误， 并且调用 parseTag 解析节点。最后，如果前面的判断都不满足，就掉入前面所说的 parseBogusComment 中正则匹配的最后一项，同时上报 `INVALID_FIRST_CHARACTER_OF_TAG_NAME` 错误。
 ```
 else if (s[1] === '/') {
   // https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
@@ -489,7 +489,7 @@ else if (/[a-z]/i.test(s[1])) {
   node = parseElement(context, ancestors)
 }
 ```
-下面就是 parseElement 函数。
+下面就是 parseElement 函数。还是开局断言是不是符合 Element 的开头，wasInPre 、wasInVPre 都是为了保存当前的 pre 状态，因为下面解析 parseTag 的时候 context 上的值会改变，而如果解析后 inPre 或者 inVPre 变为 true，而以前是 false，就说明当前标签是 pre 或者 v-pre 的边界点，也就是由它开启的，在 parseElement 的最后也要恢复成原来的状态。我们看到 parseElement 用到了 parseTag 去解析标签，那么跟着步伐，去看看 parseTag。
 ```
 function parseElement(
   context: ParserContext,
@@ -505,32 +505,7 @@ function parseElement(
   const isPreBoundary = context.inPre && !wasInPre
   const isVPreBoundary = context.inVPre && !wasInVPre
 
-  if (element.isSelfClosing || context.options.isVoidTag(element.tag)) {
-    return element
-  }
-
-  // Children.
-  ancestors.push(element)
-  const mode = context.options.getTextMode(element, parent)
-  const children = parseChildren(context, mode, ancestors)
-  ancestors.pop()
-
-  element.children = children
-
-  // End tag.
-  if (startsWithEndTagOpen(context.source, element.tag)) {
-    parseTag(context, TagType.End, parent)
-  } else {
-    emitError(context, ErrorCodes.X_MISSING_END_TAG, 0, element.loc.start)
-    if (context.source.length === 0 && element.tag.toLowerCase() === 'script') {
-      const first = children[0]
-      if (first && startsWith(first.loc.source, '<!--')) {
-        emitError(context, ErrorCodes.EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT)
-      }
-    }
-  }
-
-  element.loc = getSelection(context, element.loc.start)
+  ...
 
   if (isPreBoundary) {
     context.inPre = false
@@ -539,6 +514,121 @@ function parseElement(
     context.inVPre = false
   }
   return element
+}
+
+```
+
+parseTag 不仅仅用于在 parseElement 中解析标签，同时我们在上面讲过一些情况进行兜底，就是只有结束标签的情况。
+
+可以看到一上来也是先对我们的字符串进行断言，同时判断我们的字符串是否跟我们要解析的 TagType 模式是否匹配，总不能你传进来开始的tag，告诉我这是结束模式。
+
+接着拿到开始位置 start、正则去匹配标签、拿到 tag、拿到当前标签所处的命名空间，需要注意正则中 tag 开头只能是 `[a-z]`, 干完这些，我们开始往前推进 context，消耗标签、消耗空格，目的就是为了我们下面进行标签属性的解析，然后保存当前的位置和字符串，因为如果后面解析属性过程中，如果遇到了 v-pre 标签，需要重新解析标签属性，至于为什么要这样做呢，后面会讲到。
+
+可以看到，在 parseTag 里面，又调用了 parseAttributes 去解析标签的属性，
+```
+/**
+ * Parse a tag (E.g. `<div id=a>`) with that type (start tag or end tag).
+ */
+function parseTag(
+  context: ParserContext,
+  type: TagType,
+  parent: ElementNode | undefined
+): ElementNode {
+  __TEST__ && assert(/^<\/?[a-z]/i.test(context.source))
+  __TEST__ &&
+    assert(
+      type === (startsWith(context.source, '</') ? TagType.End : TagType.Start)
+    )
+
+  // Tag open.
+  const start = getCursor(context)
+  const match = /^<\/?([a-z][^\t\r\n\f />]*)/i.exec(context.source)!
+  const tag = match[1]
+  const ns = context.options.getNamespace(tag, parent)
+
+  advanceBy(context, match[0].length)
+  advanceSpaces(context)
+
+  // save current state in case we need to re-parse attributes with v-pre
+  const cursor = getCursor(context)
+  const currentSource = context.source
+
+  // Attributes.
+  let props = parseAttributes(context, type)
+
+  // check <pre> tag
+  if (context.options.isPreTag(tag)) {
+    context.inPre = true
+  }
+
+  // check v-pre
+  if (
+    !context.inVPre &&
+    props.some(p => p.type === NodeTypes.DIRECTIVE && p.name === 'pre')
+  ) {
+    context.inVPre = true
+    // reset context
+    extend(context, cursor)
+    context.source = currentSource
+    // re-parse attrs and filter out v-pre itself
+    props = parseAttributes(context, type).filter(p => p.name !== 'v-pre')
+  }
+
+  // Tag close.
+  let isSelfClosing = false
+  if (context.source.length === 0) {
+    emitError(context, ErrorCodes.EOF_IN_TAG)
+  } else {
+    isSelfClosing = startsWith(context.source, '/>')
+    if (type === TagType.End && isSelfClosing) {
+      emitError(context, ErrorCodes.END_TAG_WITH_TRAILING_SOLIDUS)
+    }
+    advanceBy(context, isSelfClosing ? 2 : 1)
+  }
+
+  let tagType = ElementTypes.ELEMENT
+  const options = context.options
+  if (!context.inVPre && !options.isCustomElement(tag)) {
+    const hasVIs = props.some(
+      p => p.type === NodeTypes.DIRECTIVE && p.name === 'is'
+    )
+    if (options.isNativeTag && !hasVIs) {
+      if (!options.isNativeTag(tag)) tagType = ElementTypes.COMPONENT
+    } else if (
+      hasVIs ||
+      isCoreComponent(tag) ||
+      (options.isBuiltInComponent && options.isBuiltInComponent(tag)) ||
+      /^[A-Z]/.test(tag) ||
+      tag === 'component'
+    ) {
+      tagType = ElementTypes.COMPONENT
+    }
+
+    if (tag === 'slot') {
+      tagType = ElementTypes.SLOT
+    } else if (
+      tag === 'template' &&
+      props.some(p => {
+        return (
+          p.type === NodeTypes.DIRECTIVE && isSpecialTemplateDirective(p.name)
+        )
+      })
+    ) {
+      tagType = ElementTypes.TEMPLATE
+    }
+  }
+
+  return {
+    type: NodeTypes.ELEMENT,
+    ns,
+    tag,
+    tagType,
+    props,
+    isSelfClosing,
+    children: [],
+    loc: getSelection(context, start),
+    codegenNode: undefined // to be created during transform phase
+  }
 }
 
 ```
