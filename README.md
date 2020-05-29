@@ -10,6 +10,6 @@
 当然投食也是欢迎的~
 
 <p align="center">
-    <img height="360" alt="微信" src="./docs/.vuepress/dist/wechat-pay.jpeg"/>
-    <img height="360" alt="支付宝" src="./docs/.vuepress/dist/alipay.jpeg" />
+    <img height="360" alt="微信" src="./docs/.vuepress/public/wechat-pay.jpeg"/>
+    <img height="360" alt="支付宝" src="./docs/.vuepress/public/alipay.jpeg" />
 </p>
