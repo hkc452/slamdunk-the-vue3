@@ -33,8 +33,8 @@ module.exports = {
                     // path: '/main/vue/compiler/',
                     children: [
                         ['vue/compiler/compiler', 'compiler'],
-                        ['vue/compiler/parse', 'parse(努力完工中)'],
-                        ['vue/compiler/transform', 'transform'],
+                        ['vue/compiler/parse', 'parse'],
+                        ['vue/compiler/transform', 'transform(准备开始施工🚧)'],
                         ['vue/compiler/codegen', 'codegen'],
                     ]
                 }

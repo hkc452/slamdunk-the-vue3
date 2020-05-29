@@ -1075,3 +1075,117 @@ function parseElement(
 }
 ```
 
+parseElment 的上一级调用栈是 parseChildren，还记得我们大明湖畔的 while 循环吗？parseElement 我们分析完了，`s[1] === '?'` 就是 `<?`，我们也讲过了。这些条件都不满足，上报 `INVALID_FIRST_CHARACTER_OF_TAG_NAME` 错误，就是 `<` 后面不知道跟着是什么字符串。反正最后有 parseText 兜底。
+```
+else if (/[a-z]/i.test(s[1])) {
+  node = parseElement(context, ancestors)
+} else if (s[1] === '?') {
+  emitError(
+    context,
+    ErrorCodes.UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME,
+    1
+  )
+  node = parseBogusComment(context)
+} else {
+  emitError(context, ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, 1)
+}
+```
+看看，parseText 兜底，接下来就是调用 pushNode 把返回的节点塞入 nodes，为什么 node 会是数组呢？ parseCDATA 里面调用 parseChildren ，而 parseCDATA 的解析都是同级的，所以你懂的。pushNode 的目的，就是为了合并相邻 NodeTypes.TEXT 节点，再拿  parseCDATA 举例，在解析过程中，parseText 会根据 endTokens 切割节点，所以会出现多个 NodeTypes.TEXT 不在同个 AST，同样还有注释中的例子，`a < b`。
+```
+if (!node) {
+  node = parseText(context, mode)
+}
+
+if (isArray(node)) {
+  for (let i = 0; i < node.length; i++) {
+    pushNode(nodes, node[i])
+  }
+} else {
+  pushNode(nodes, node)
+}
+function pushNode(nodes: TemplateChildNode[], node: TemplateChildNode): void {
+  // ignore comments in production
+  /* istanbul ignore next */
+  if (!__DEV__ && node.type === NodeTypes.COMMENT) {
+    return
+  }
+
+  if (node.type === NodeTypes.TEXT) {
+    const prev = last(nodes)
+    // Merge if both this and the previous node are text and those are
+    // consecutive. This happens for cases like "a < b".
+    if (
+      prev &&
+      prev.type === NodeTypes.TEXT &&
+      prev.loc.end.offset === node.loc.start.offset
+    ) {
+      prev.content += node.content
+      prev.loc.end = node.loc.end
+      prev.loc.source += node.loc.source
+      return
+    }
+  }
+
+  nodes.push(node)
+}
+```
+
+parseChildren 收尾部分，是要要对节点中的 NodeTypes.TEXT 中空白节点进行处理。对于 TextModes.RAWTEXT 模式就不进行处理了。
+
+如果是其他模式，context.inPre 为 false，循环所有的节点。如果`!/[^\t\r\n\f ]/.test(node.content)` 为真， 表示这个节点是空白节点，对于空白节点，注释也写的很清楚了，对于第一个或者最后一个空白节点，可以忽略，同时如果移除注释前后的空白节点，而对于夹在两个元素中间的空白节点，如果这个空白节点是含有换行符，才才进行移除，如果要移除节点，就将 `removedWhitespace` 设为 true,这样在最后返回的时候，用 filter(Boolean) 过滤置空的空白节点，`nodes[i] = null as any` 就是这样置空，如果空白节点不满足上面的条件，把空白节点的内容缩减成一个空白。最后而对于不是空白节点的 NodeTypes.TEXT 节点，移除内容中的空白。
+
+如果对于 context.inPre 为 true ，而父级就是 pre 元素的，移除第一个节点的换行符，也就是说，我们只关心 pre 下面第一个节点的开头不能是换行符，孙子节点不在在乎。
+
+```
+// Whitespace management for more efficient output
+  // (same as v2 whitespace: 'condense')
+  let removedWhitespace = false
+  if (mode !== TextModes.RAWTEXT) {
+    if (!context.inPre) {
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i]
+        if (node.type === NodeTypes.TEXT) {
+          if (!/[^\t\r\n\f ]/.test(node.content)) {
+            const prev = nodes[i - 1]
+            const next = nodes[i + 1]
+            // If:
+            // - the whitespace is the first or last node, or:
+            // - the whitespace is adjacent to a comment, or:
+            // - the whitespace is between two elements AND contains newline
+            // Then the whitespace is ignored.
+            if (
+              !prev ||
+              !next ||
+              prev.type === NodeTypes.COMMENT ||
+              next.type === NodeTypes.COMMENT ||
+              (prev.type === NodeTypes.ELEMENT &&
+                next.type === NodeTypes.ELEMENT &&
+                /[\r\n]/.test(node.content))
+            ) {
+              removedWhitespace = true
+              nodes[i] = null as any
+            } else {
+              // Otherwise, condensed consecutive whitespace inside the text down to
+              // a single space
+              node.content = ' '
+            }
+          } else {
+            node.content = node.content.replace(/[\t\r\n\f ]+/g, ' ')
+          }
+        }
+      }
+    } else if (parent && context.options.isPreTag(parent.tag)) {
+      // remove leading newline per html spec
+      // https://html.spec.whatwg.org/multipage/grouping-content.html#the-pre-element
+      const first = nodes[0]
+      if (first && first.type === NodeTypes.TEXT) {
+        first.content = first.content.replace(/^\r?\n/, '')
+      }
+    }
+  }
+
+  return removedWhitespace ? nodes.filter(Boolean) : nodes
+
+```
+
+长呼一口气，parse 模块终于讲完了。只要是知道里面 parseChildren 是个嵌套调用的过程，里面还要进行一定的容错，同时 ns 和 mode 会影响解析，打完收工。
