@@ -8,7 +8,7 @@
     <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.30942ee2.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.5d8f28a9.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.ff5ae6b9.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.1a043487.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.0e4c4490.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.904726df.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/12.1c197d36.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.3b123913.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.a5f7bb07.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.ed39d1e0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.f0377083.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.ec7a16fa.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.1d75929f.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.8d4038c4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.ead9747b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.7a6d3a31.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.7f0cbf2c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.039e5e49.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.fca74266.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.2f76157e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.0e4c4490.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.f11fe9a0.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.933cd8dd.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.d2c46ed2.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css">
   </head>
   <body>
@@ -800,7 +800,7 @@ getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
 
   return { content, isQuoted, loc: getSelection(context, start) }
 }
-</code></pre></div><p>现在我们再来看看 parseAttribute 中对 指令属性的处理。如果出于 inVPre 环境，则我们不需要对指令进行处理，但是有可能我们父级不是 inVPre，但当前 tag 有 v-pre 指令，我们可能一开始进去这里处理了，后面解析完毕之后，发现不需要二次处理，所以需要重新重新解析属性。但为什么不在这里做个校验呢？奇怪了</p> <p><code>/^(v-|:|@|#)/.test(name)</code> 这个正则是为了初步判断属性是不是指令，在进去 if 判断之后，会用正则做进一步的判断，<code>/(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i</code> 这个看起来很复杂的正则，就是为了提取属性名中的指令名、指令的参数以及执行的修饰符。</p> <div class="language- extra-class"><pre class="language-text"><code>if (!context.inVPre &amp;&amp; /^(v-|:|@|#)/.test(name)) {
+</code></pre></div><p>现在我们再来看看 parseAttribute 中对 指令属性的处理。如果出于 inVPre 环境，则我们不需要对指令进行处理，但是有可能我们父级不是 inVPre，但当前 tag 有 v-pre 指令，我们可能一开始进去这里处理了，后面解析完毕之后，发现不需要二次处理，所以需要重新重新解析属性。但为什么不在这里做个校验呢？奇怪了</p> <p><code>/^(v-|:|@|#)/.test(name)</code> 这个正则是为了初步判断属性是不是指令，在进去 if 判断之后，会用正则做进一步的判断，<code>/(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i</code> 这个看起来很复杂的正则，就是为了提取属性名中的指令名、指令的参数以及执行的修饰符。</p> <p>对于分组2前面的 <code>(?::|^@|^#)</code>，属于指令的语法糖，分别代表 bind、 click 和slot，这个我们在返回指令 AST 的 name 那里也可以看到，我们需要解决的分组2的内容进行校验，分组2属于指令的参数，可以是动态的，像 <code>v-on:[event]</code>, event 就是动态参数，但是 <code>v-on:[event test]</code> 会上报 <code>X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END</code> 错误的，因为前面我们匹配属性名正则的时候，不包括空格，所以动态参数找不到结束符 <code>]</code>。参数也会返回一个 AST，类型是 SIMPLE_EXPRESSION，其中 isStatic 是由 参数是不是动态决定的。</p> <p>接着指令还会对属性内容位置进行裁剪，如果是 isQuoted ，也会把能属性内容位置中的内容的引号去掉，同时修复里面的开始、结束位置。</p> <p>最后提前返回指令的 AST，类型是 NodeTypes.DIRECTIVE， 其中 name 上面说过，exp 是讲属性内容转化成 AST 类型为 SIMPLE_EXPRESSION 的节点，arg 是指令参数，modifiers 是指令的修饰符，属于正则中的分组3里面的内容。</p> <div class="language- extra-class"><pre class="language-text"><code>if (!context.inVPre &amp;&amp; /^(v-|:|@|#)/.test(name)) {
     const match = /(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i.exec(
       name
     )!
@@ -870,7 +870,7 @@ getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
       loc
     }
 }
-</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+</code></pre></div><p>终于把 parseAttribute 讲完了，parseAttribute 回到 parseAttributes，parseAttributes 回到 parseElement，这个调用栈有点长，希望你们还没晕。</p></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="prev">
         compiler
@@ -879,6 +879,6 @@ getNamespace(tag: string, parent: ElementNode | undefined): DOMNamespaces {
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.30942ee2.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.5d8f28a9.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.904726df.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.53f3bd5a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/12.1c197d36.js" defer></script>
   </body>
 </html>
