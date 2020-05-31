@@ -3,7 +3,7 @@ computed 就是计算属性，可能会依赖其他 reactive 的值，同时会�
 首先我们会对传入的 getterOrOptions 进行解析，如果是方法，说明是只读 computed，否则从 getterOrOptions 解析出 get 和 set 方法。
 
 紧接着，利用 getter 创建 runner effect，需要注意的 effect 的三个参数，第一是 lazy ，表明内部创建 effect 之后，不会立即执行。第二是 coumputed, 表明 computed 上游依赖改变的时候，会优先 trigger runner effect，而 runner 也不会在这时被执行的，原因看第三。第三，我们知道，effect 传入 scheduler 的时候， effect 会 trigger 的时候会调用 scheduler 而不是直接调用 effect。而在 computed 中，我们可以看到 `trigger(computed, TriggerOpTypes.SET, 'value')` 触发依赖 computed 的 effect 被重新收集依赖。同时因为 computed 是缓存和延迟计算，所以在依赖 computed effect 重新收集的过程中，runner 会在第一次计算 value，以及重新让 runner 被收集依赖。这也是为什么要 computed effect 的优先级要高的原因，因为让 依赖的 computed的 effect 重新收集依赖，以及让 runner 最早进行依赖收集，这样才能计算出最新的 computed 值。
-```
+``` js
 export function computed<T>(
   getterOrOptions: ComputedGetter<T> | WritableComputedOptions<T>
 ) {
@@ -58,7 +58,7 @@ export function computed<T>(
 ```
 从上面可以看出，effect 有可能被多次调用，像下面中 value.foo++，会导致 effectFn 运行两次，因为同时被 effectFn 同时被 effectFn 和 c1 依赖了。PS: 下面这个测试用例是自己写的，不是 Vue 里面的。
 
-```
+``` js
 it('should trigger once', () => {
     const value = reactive({ foo: 0 })
     const getter1 = jest.fn(() => value.foo)

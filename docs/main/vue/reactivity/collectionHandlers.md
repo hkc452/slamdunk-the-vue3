@@ -1,6 +1,6 @@
 collectionHandlers 主要是对 set、map、weakSet、weakMap 四种类型的对象进行劫持。
 主要有下面三种类型的 handler，当然照旧，我们拿其中的 mutableCollectionHandlers 进行讲解。剩余两种结合理解。
-```
+``` js
 export const mutableCollectionHandlers: ProxyHandler<CollectionTypes> = {
   get: createInstrumentationGetter(false, false)
 }
@@ -17,7 +17,7 @@ mutableCollectionHandlers 主要是对 collection 的方法进行劫持，所以
 
 instrumentations 是代理 get 访问的 handler，当然如果我们访问的 key 是 ReactiveFlags，直接返回存储的值，否则如果访问的 key 在 instrumentations 上，在由 instrumentations 进行处理。
 
-```
+``` js
 function createInstrumentationGetter(isReadonly: boolean, shallow: boolean) {
   const instrumentations = shallow
     ? shallowInstrumentations
@@ -52,7 +52,7 @@ function createInstrumentationGetter(isReadonly: boolean, shallow: boolean) {
 
 接下来看看 mutableInstrumentations ，可以看到 mutableInstrumentations 对常见集合的增删改查以及 迭代方法进行了代理，我们就顺着上面的 key 怎么进行拦截的。注意 this: MapTypes 是 ts 上对 this 类型进行标注
 
-```
+``` js
 const mutableInstrumentations: Record<string, Function> = {
   get(this: MapTypes, key: unknown) {
     return get(this, key, toReactive)
@@ -90,7 +90,7 @@ iteratorMethods.forEach(method => {
 
 ### get 方法
 首先获取 target ，对 target 进行 toRaw， 这个会被 createInstrumentationGetter 中的 proxy 拦截返回原始的 target，然后对 key 也进行一次 toRaw, 如果两者不一样，说明 key 也是 reative 的， 对 key  和 rawkey 都进行 track ，然后调用 target 原型上面的 has 方法，如果 key 为 true ，调用 get 获取值，同时对值进行 wrap ，对于 mutableInstrumentations 而言，就是 toReactive。
-```
+``` js
 function get(
   target: MapTypes,
   key: unknown,
@@ -113,7 +113,7 @@ function get(
 
 ### has 方法
 跟 get 方法差不多，也是对 key 和 rawkey 进行 track。
-```
+``` js
 function has(this: CollectionTypes, key: unknown): boolean {
   const target = toRaw(this)
   const rawKey = toRaw(key)
@@ -128,7 +128,7 @@ function has(this: CollectionTypes, key: unknown): boolean {
 
 ### size 和 add 方法
 size 最要是返回集合的大小，调用原型上的 size 方法，同时触发 ITERATE 类型的 track，而 add 方法添加进去之前要判断原本是否已经存在了，如果存在，则不会触发 ADD 类型的 trigger。
-```
+``` js
 function size(target: IterableCollections) {
   target = toRaw(target)
   track(target, TrackOpTypes.ITERATE, ITERATE_KEY)
@@ -151,7 +151,7 @@ function add(this: SetTypes, value: unknown) {
 ### set 方法
 set 方法是针对 map 类型的，从 this 的类型我们就可以看出来了， 同样这里我们也会对 key 做两个校验，第一，是看看现在 map 上面有没有存在同名的 key，来决定是触发 SET 还是 ADD 的 trigger， 第二，对于开发环境，会进行 checkIdentityKeys 检查
 
-```
+``` js
 function set(this: MapTypes, key: unknown, value: unknown) {
   value = toRaw(value)
   const target = toRaw(this)
@@ -176,7 +176,7 @@ function set(this: MapTypes, key: unknown, value: unknown) {
 }
 ```
 checkIdentityKeys 就是为了检查目标对象上面，是不是同时存在 rawkey 和 key，因为这样可能会数据不一致。
-```
+``` js
 function checkIdentityKeys(
   target: CollectionTypes,
   has: (key: unknown) => boolean,
@@ -197,7 +197,7 @@ function checkIdentityKeys(
 ```
 ### deleteEntry 和 clear 方法
 deleteEntry 主要是为了触发 DELETE trigger ，流程跟上面 set 方法差不多，而 clear  方法主要是触发 CLEAR track，但是里面做了一个防御性的操作，就是如果集合的长度已经为0，则调用 clear 方法不会触发 trigger。
-```
+``` js
 function deleteEntry(this: CollectionTypes, key: unknown) {
   const target = toRaw(this)
   const { has, get, delete: del } = getProto(target)
@@ -239,7 +239,7 @@ function clear(this: IterableCollections) {
 在调用 froEach 方法的时候会触发 ITERATE 类型的 track，需要注意 Size 方法也会同样类型的 track，毕竟集合整体的变化会导致整个两个方法的输出不一样。顺带提一句，还记得我们的 effect 时候的 trigger 吗，对于 SET | ADD | DELETE 等类似的操作，因为会导致集合值得变化，所以也会触发 ITERATE_KEY 或则 MAP_KEY_ITERATE_KEY 的 effect 重新收集依赖。
 
 在调用原型上的 forEach 进行循环的时候，会对 key 和 value 都进行一层 wrap，对于我们来说，就是 reactive。
-```
+``` js
 function createForEach(isReadonly: boolean, shallow: boolean) {
   return function forEach(
     this: IterableCollections,
@@ -264,7 +264,7 @@ function createForEach(isReadonly: boolean, shallow: boolean) {
 
 ### createIterableMethod 方法 
 主要是对集合中的迭代进行代理，`['keys', 'values', 'entries', Symbol.iterator]` 主要是这四个方法。
-```
+``` js
 const iteratorMethods = ['keys', 'values', 'entries', Symbol.iterator]
 iteratorMethods.forEach(method => {
   mutableInstrumentations[method as string] = createIterableMethod(
@@ -285,7 +285,7 @@ iteratorMethods.forEach(method => {
 })
 ```
 可以看到，这个方法也会触发 TrackOpTypes.ITERATE 类型的 track，同样也会在遍历的时候对值进行 wrap，需要主要的是，这个方法主要是 iterator protocol 进行一个 polyfill， 所以需要实现同样的接口方便外部进行迭代。
-```
+``` js
 function createIterableMethod(
   method: string | symbol,
   isReadonly: boolean,
