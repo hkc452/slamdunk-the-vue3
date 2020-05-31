@@ -1,6 +1,6 @@
 {
   "author": "hkc",
-  "license": "BSD",
+  "license": "BSD-2-Clause",
   "scripts": {
     "dev": "vuepress dev docs",
     "build": "vuepress build docs",
