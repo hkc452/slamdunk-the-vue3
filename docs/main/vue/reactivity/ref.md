@@ -4,7 +4,7 @@ ref 其实就是 reactive 包了一层，读取值要要通过 ref.value 进行�
 通过 createRef 创建 ref，如果传入的 rawValue 本身就是一个 ref 的话，直接返回。
 
 而如果 shallow 为 false， 直接让 ref.value 等于 value，否则对 rawValue 进行 convert 转化成 reactive。可以看到 __v_isRef 标识 一个对象是否是 ref，读取 value 触发 track，设置 value 而且 newVal 的 toRaw 跟 原先的 rawValue 不一致，则进行设置，同样对于非 shallow 也进行 convert。
-```
+``` js
 export function ref(value?: unknown) {
   return createRef(value)
 }
@@ -38,7 +38,7 @@ function createRef(rawValue: unknown, shallow = false) {
 }
 ```
 triggerRef 手动触发 trigger ，对 shallowRef 可以由调用者手动触发。 unref 则是反向操作，取出 ref 中的 value 值。
-```
+``` js
 export function triggerRef(ref: Ref) {
   trigger(
     ref,
@@ -54,7 +54,7 @@ export function unref<T>(ref: T): T extends Ref<infer V> ? V : T {
 
 ```
 toRefs 是将一个 reactive 对象或者 readonly 转化成 一个个 refs 对象，这个可以从 toRef 方法可以看出。
-```
+``` js
 export function toRefs<T extends object>(object: T): ToRefs<T> {
   if (__DEV__ && !isProxy(object)) {
     console.warn(`toRefs() expects a reactive object but received a plain one.`)
@@ -84,7 +84,7 @@ export function toRef<T extends object, K extends keyof T>(
 ```
 
 需要提到 baseHandlers 一点的是，对于非 shallow 模式中，对于 target 不是数组，会直接拿 ref.value 的值，而不是 ref。
-```
+``` js
  if (isRef(res)) {
       if (targetIsArray) {
         !isReadonly && track(target, TrackOpTypes.GET, key)
@@ -97,7 +97,7 @@ export function toRef<T extends object, K extends keyof T>(
 
 ```
 而 set 中，如果对于 target 是对象，oldValue 是 ref， value 不是 ref，直接把 vlaue 设置给 oldValue.value
-```
+``` js
 if (!shallow) {
       value = toRaw(value)
       if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
@@ -108,7 +108,7 @@ if (!shallow) {
 ```
 
 需要注意的是， ref 还支持自定义 ref，就是又调用者手动去触发 track 或者 trigger，就是通过工厂模式生成我们的 ref 的 get 和 set
-```
+``` js
 export type CustomRefFactory<T> = (
   track: () => void,
   trigger: () => void
@@ -135,7 +135,7 @@ export function customRef<T>(factory: CustomRefFactory<T>): Ref<T> {
 }
 ```
 这个用法，我们可以在测试用例找到，
-```
+``` js
  const custom = customRef((track, trigger) => ({
   get() {
     track()
