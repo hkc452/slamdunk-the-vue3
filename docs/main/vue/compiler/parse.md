@@ -1206,4 +1206,43 @@ it('should NOT remove whitespaces w/o newline between elements', () => {
   ])
 })
 ```
-长呼一口气，parse 模块终于讲完了。只要是知道里面 parseChildren 是个嵌套调用的过程，里面还要进行一定的容错，同时 ns 和 mode 会影响解析，打完收工
+
+长呼一口气，parse 模块终于讲完了。只要是知道里面 parseChildren 是个嵌套调用的过程，里面还要进行一定的容错，同时 ns 和 mode 会影响解析，打完收工。
+
+万万没想到，还没有，我竟然忘记最初的梦想了 `baseParse`。 最初我们是在 createParserContext 创建解析上下文 context ，然后保存开始的位置 start，接着使用 createRoot 去创建 AST 的 ROOT 根节点，最后返回这个根节点。
+
+我们看看 createRoot 这个方法，children 就是我们前面用 parseChildren 解析的 AST 节点，即 baseParse 最上层节点是 NodeTypes.ROOT，对于 root 节点，在这里我们只需要理解 type、 children、 loc ，因为其他属性都是在 transform 时候赋值进去的，为了 codegen 、runtime 等时候起到关键作用。 ok，这次 parse 真的讲完了，后面开始讲 transform。
+
+```
+export function baseParse(
+  content: string,
+  options: ParserOptions = {}
+): RootNode {
+  const context = createParserContext(content, options)
+  const start = getCursor(context)
+  return createRoot(
+    parseChildren(context, TextModes.DATA, []),
+    getSelection(context, start)
+  )
+}
+
+export function createRoot(
+  children: TemplateChildNode[],
+  loc = locStub
+): RootNode {
+  return {
+    type: NodeTypes.ROOT,
+    children,
+    helpers: [],
+    components: [],
+    directives: [],
+    hoists: [],
+    imports: [],
+    cached: 0,
+    temps: 0,
+    codegenNode: undefined,
+    loc
+  }
+}
+
+```
