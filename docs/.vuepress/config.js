@@ -34,7 +34,7 @@ module.exports = {
                     children: [
                         ['vue/compiler/compiler', 'compiler'],
                         ['vue/compiler/parse', 'parse'],
-                        ['vue/compiler/transform', 'transform(准备开始施工🚧)'],
+                        ['vue/compiler/transform', 'transform(正在施工🚧)'],
                         ['vue/compiler/codegen', 'codegen'],
                     ]
                 }
