@@ -1,6 +1,6 @@
 transform 可以说是整个编译模块最复杂庞大的部分，需要对 parse 阶段生成的 AST 节点进行二次分析以及根据 Vue 语法和优化等需要，需要对节点进行调整，从而为最后的 codegen 最后热身准备。
 
-我们首先从 complier-dom 的 compile 方法 看到 compiler-core 的 baseCompile 方法。 compiler-dom, 只传入了 transformStyle 的 nodeTransforms，同时传入了 一堆的 DOMDirectiveTransforms 。而 compiler-core 中 通过 getBaseTransformPreset 生成了系列 nodeTransforms 和 directiveTransforms， 同时 传入的 transform 都排在 core 的后面，为什么要提这一点呢？因为对于 transform 来说， 顺序很重要，对于 directiveTransforms 或许没有影响，因为这是对指令的转化，而对于 nodeTransforms 而言，涉及到对 node 节点的转化，同时 node 节点的转化的过程类似 koa 中的洋葱模型，因为每个 nodeTransform 都有类似 enter 和 exit 事件，第一个执行的 nodeTransform 它的 exit 事件最后执行。
+我们首先从 complier-dom 的 compile 方法 看到 compiler-core 的 baseCompile 方法。 compiler-dom, 只传入了 transformStyle 的 nodeTransforms，同时传入了 一堆的 DOMDirectiveTransforms 。而 compiler-core 中 通过 getBaseTransformPreset 生成了系列 nodeTransforms 和 directiveTransforms， 同时 传入的 transform 都排在 core 的后面，为什么要提这一点呢？因为对于 transform 来说， 顺序很重要，对于 directiveTransforms 没有影响，因为这是对指令的转化，而对于 nodeTransforms 而言，涉及到对 node 节点的转化，同时 node 节点的转化的过程类似 koa 中的洋葱模型，因为每个 nodeTransform 都有类似 enter 和 exit 事件，第一个执行的 nodeTransform 它的 exit 事件最后执行。
 
 在下面我们也可以同时看出，baseParse 解析生成的 AST 节点，将会传入 compile 进行转化。
 
@@ -237,7 +237,7 @@ export function createTransformContext(
 }
 ```
 
-再讲讲 transfrom ，对于 transfrom 插件而言，一共有两种类型的，下面的注释也写的很清楚，NodeTransform 主要是对 childNode 进行操作，可能会替换或者移动节点，而 DirectiveTransform 主要是对我们的指令进行转化。要记住这两种 transforms 的区别，因为这对于整个 transform 流程的理解至关重要。
+再讲讲 transfrom ，对于 transfrom 插件而言，一共有两种类型的，下面的注释也写的很清楚，NodeTransform 主要是对 childNode 进行操作，可能会替换或者移动节点，而 DirectiveTransform 主要是对我们的指令进行转化生成 VNode 上面真实的 props。要记住这两种 transforms 的区别，因为这对于整个 transform 流程的理解至关重要。
 ```js
 
 // There are two types of transforms:

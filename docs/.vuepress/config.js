@@ -37,7 +37,8 @@ module.exports = {
                         {
                           title: 'transform(正在施工🚧)',
                           children: [
-                            ['vue/compiler/transform', 'transform']
+                            ['vue/compiler/transform', 'transform'],
+                            ['vue/compiler/transform/vOnce', 'vOnce']
                           ]
                         },
                         // ['vue/compiler/transform', 'transform(正在施工🚧)'],
