@@ -236,3 +236,43 @@ export function createTransformContext(
   return context
 }
 ```
+
+再讲讲 transfrom ，对于 transfrom 插件而言，一共有两种类型的，下面的注释也写的很清楚，NodeTransform 主要是对 childNode 进行操作，可能会替换或者移动节点，而 DirectiveTransform 主要是对我们的指令进行转化。要记住这两种 transforms 的区别，因为这对于整个 transform 流程的理解至关重要。
+```js
+
+// There are two types of transforms:
+//
+// - NodeTransform:
+//   Transforms that operate directly on a ChildNode. NodeTransforms may mutate,
+//   replace or remove the node being processed.
+export type NodeTransform = (
+  node: RootNode | TemplateChildNode,
+  context: TransformContext
+) => void | (() => void) | (() => void)[]
+
+// - DirectiveTransform:
+//   Transforms that handles a single directive attribute on an element.
+//   It translates the raw directive into actual props for the VNode.
+export type DirectiveTransform = (
+  dir: DirectiveNode,
+  node: ElementNode,
+  context: TransformContext,
+  // a platform specific compiler can import the base transform and augment
+  // it by passing in this optional argument.
+  augmentor?: (ret: DirectiveTransformResult) => DirectiveTransformResult
+) => DirectiveTransformResult
+
+export interface DirectiveTransformResult {
+  props: Property[]
+  needRuntime?: boolean | symbol
+  ssrTagParts?: TemplateLiteral['elements']
+}
+
+// A structural directive transform is a technically a NodeTransform;
+// Only v-if and v-for fall into this category.
+export type StructuralDirectiveTransform = (
+  node: ElementNode,
+  dir: DirectiveNode,
+  context: TransformContext
+) => void | (() => void)
+```
