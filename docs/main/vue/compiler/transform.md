@@ -4,7 +4,7 @@ transform 可以说是整个编译模块最复杂庞大的部分，需要对 par
 
 在下面我们也可以同时看出，baseParse 解析生成的 AST 节点，将会传入 compile 进行转化。
 
-``` js
+```js
 // compiler-dom
 export const DOMNodeTransforms: NodeTransform[] = [
   transformStyle,
@@ -56,7 +56,7 @@ transform(ast, {
 ```
 
 那接下来我们先看看 transform 到底干了啥，为什么还需要这么多插件呢。可以看到 Vue 里面的代码风格还是很一致的，首先生成解析的上下文 context，然后调用 traverseNode 去遍历转化我们 node，然后 要不要对我们的 hoist 进行转化，还有生成 Root 节点的 codegenNode，codegenNode 看名字就知道是用于 codegen 时使用的。至于最后的  meta information，我们在 traverseNode 的时候，会对 context 进行赋值，最后会把 context 的值赋给 Root，这个参数干嘛的呢，举个栗子， helpers 就是 runtime 需要引入的 runtime 方法，我们在这里存好，方便在 codegen 的时候引入进来。
-``` js
+```js
 export function transform(root: RootNode, options: TransformOptions) {
   const context = createTransformContext(root, options)
   traverseNode(root, context)
@@ -80,8 +80,10 @@ export function transform(root: RootNode, options: TransformOptions) {
 
 options 中有些已经说过了，这里挑几个没讲过的，cacheHandlers 就是要不要缓存函数的，`{ onClick: _cache[0] || (_cache[0] = e => _ctx.foo(e)) }`，这个在 compiler 时候参数校验说过， expressionPlugins 是用于 transformExpressions 时，`@babel/parse` 的插件。
 
-state 主要是用于存放 transform 需要的全局变量，用于状态的保存。而 methods 主要用于操作 state 以及 节点进行节本的操作。
-```
+state 主要是用于存放 transform 需要的全局变量，用于状态的保存。scopes 里面有几个环境，for、slot、pre、once，这里用计数来标记所处的环境，是因为存在嵌套的情况。identifiers 表示用到变量，主要防止变量冲突，同时采用计数的原因，也有点像垃圾回收。temps、cached 分辨表示临时变量 和 缓存变量，这里用数字表示，是把这两个数当成了索引坐标。这与hoists 有点类似，不过 hoists 是拿数组长度做下标，hoists 主要是存放静态节点，至于 temps、cached 、hoists 三者细致的区别，后续会讲到。最后提一下, parent 表示 父级 AST， currentNode 表示 当前正在处理的 node，childIndex 表示当前节点处于父级的 index，方便进行节点删除等操作。
+
+而 methods 主要用于操作 state 以及 节点进行节本的操作。这里面用到的方法，会在 traverseNode 做讲解。
+```js
 export function createTransformContext(
   root: RootNode,
   {
