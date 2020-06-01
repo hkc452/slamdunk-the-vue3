@@ -276,3 +276,70 @@ export type StructuralDirectiveTransform = (
   context: TransformContext
 ) => void | (() => void)
 ```
+接下来我们看看 traverseNode，这是 transform 中的核心，控制整个流程的运转。首先要解析的节点赋值给 currentNode，现在解析一开始是 Root 节点，然后调用 nodeTransforms 循环，同时把 node 传进去，最后对于 nodeTransform 返回 onExit 处理的，塞到 exitFns 里面，在循环中，如果这个节点被移除了，直接 return 结束整个 traverseNode，如果没有被移除，  `node = context.currentNode` 通过这样重新拿 node， 因为在 transform 过程中，node 可以被替换了，所以要通过这种方式拿最新值。
+
+接着对根据 node 的类型进行处理，可以看到对于 comment 节点，`context.helper(CREATE_COMMENT)`，上面我们可以看到就是把 `CREATE_COMMENT` 这个方法塞到 `helpers` 这个 set 集合里面，为了 codegen 的时候把 runtime 的方法引入进来。对于插值也一样，把 runtime 的 `TO_DISPLAY_STRING` 引入进来，不过对于 ssr ，上面两个方法不需要引入，因为 ssr 在 transform 阶段就把这两个问题前置处理了，所以不需要 runtime。对于 type 为 NodeTypes.IF 类型，注意这个类型我们在 parse 阶段生成的类型是没有的，是在 transform 阶段生成的，这时递归调用 traverseNode 去处理每个分支 branches 。而对于 IF_BRANCH、FOR、ELEMENT、ROOT，则调用 traverseChildren 去处理子节点，我们一开始调用 traverseNode 是处于 ROOT，所以下面必回调用 traverseChildren 处理 ROOT 下面的children。switch 处理完毕后，看 exitFns 的调用，从 exitFns 数组的尾巴往前调用，这也是为什么前面我说很像洋葱模型的原因了。
+``` js
+export function traverseNode(
+  node: RootNode | TemplateChildNode,
+  context: TransformContext
+) {
+  context.currentNode = node
+  // apply transform plugins
+  const { nodeTransforms } = context
+  const exitFns = []
+  for (let i = 0; i < nodeTransforms.length; i++) {
+    const onExit = nodeTransforms[i](node, context)
+    if (onExit) {
+      if (isArray(onExit)) {
+        exitFns.push(...onExit)
+      } else {
+        exitFns.push(onExit)
+      }
+    }
+    if (!context.currentNode) {
+      // node was removed
+      return
+    } else {
+      // node may have been replaced
+      node = context.currentNode
+    }
+  }
+
+  switch (node.type) {
+    case NodeTypes.COMMENT:
+      if (!context.ssr) {
+        // inject import for the Comment symbol, which is needed for creating
+        // comment nodes with `createVNode`
+        context.helper(CREATE_COMMENT)
+      }
+      break
+    case NodeTypes.INTERPOLATION:
+      // no need to traverse, but we need to inject toString helper
+      if (!context.ssr) {
+        context.helper(TO_DISPLAY_STRING)
+      }
+      break
+
+    // for container types, further traverse downwards
+    case NodeTypes.IF:
+      for (let i = 0; i < node.branches.length; i++) {
+        traverseNode(node.branches[i], context)
+      }
+      break
+    case NodeTypes.IF_BRANCH:
+    case NodeTypes.FOR:
+    case NodeTypes.ELEMENT:
+    case NodeTypes.ROOT:
+      traverseChildren(node, context)
+      break
+  }
+
+  // exit transforms
+  let i = exitFns.length
+  while (i--) {
+    exitFns[i]()
+  }
+}
+
+```
