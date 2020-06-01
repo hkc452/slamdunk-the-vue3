@@ -34,7 +34,13 @@ module.exports = {
                     children: [
                         ['vue/compiler/compiler', 'compiler'],
                         ['vue/compiler/parse', 'parse'],
-                        ['vue/compiler/transform', 'transform(正在施工🚧)'],
+                        {
+                          title: 'transform(正在施工🚧)',
+                          children: [
+                            ['vue/compiler/transform', 'transform']
+                          ]
+                        },
+                        // ['vue/compiler/transform', 'transform(正在施工🚧)'],
                         ['vue/compiler/codegen', 'codegen'],
                     ]
                 }

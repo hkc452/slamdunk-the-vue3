@@ -343,3 +343,26 @@ export function traverseNode(
 }
 
 ```
+traverseNode 中的 switch 最后的分支，就是调用 traverseChildren 对子节点进行处理，在循环中，讲 传入的node 赋值 context.parent，这样在对 child 进行 移除替换操作时，能拿到 parent，同时 nodeRemoved 也是为了修正如果 child 被移除，下一次循环能从正确的位置开始，childIndex 是为了移除或者替换节点时能正确知道插入父节点的位置，最后递归调用 traverseNode 对 child 进行 transform 处理。`if (isString(child)) continue` 这个再说下，我们知道 parse 生成的节点都是 AST 节点，即对象，这是会出现 string 的原因，也是 transform 过程中，对 AST 节点进行了操作。
+
+```js
+export function traverseChildren(
+  parent: ParentNode,
+  context: TransformContext
+) {
+  let i = 0
+  const nodeRemoved = () => {
+    i--
+  }
+  for (; i < parent.children.length; i++) {
+    const child = parent.children[i]
+    if (isString(child)) continue
+    context.parent = parent
+    context.childIndex = i
+    context.onNodeRemoved = nodeRemoved
+    traverseNode(child, context)
+  }
+}
+```
+
+我们可以看到，traverseNode 可以认为是空转，里面没有处理具体的逻辑，只是对 整个 transform 流程进行一个总体的流程把控。所以需要理解 transform，需要对 传入的 nodeTransform 进行讲解，同时再次强调的是，nodeTransforms 传入的顺序很重要，因为涉及到对 node 的优先处理，还有就是类洋葱模型的 exitFn。
