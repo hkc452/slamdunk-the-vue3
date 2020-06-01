@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>TODO | Vue3.0 源码解读</title>
+    <title>Vue3.0 源码解读</title>
     <meta name="generator" content="VuePress 1.4.1">
     <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
     <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
     <meta name="description" content="Vue3.0 源码解读">
-    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.df08d815.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.43eface2.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/13.501f5dc8.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.ce270f70.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.1a015dc8.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/12.226cd84d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.5385cb61.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.746bc25e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.913a03fb.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.3e84bfb4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.2e25ccd6.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.8ae9bd7e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.a46bd120.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.28065e21.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.ce76527a.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.8846d71d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.badd6dc3.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.171c11ae.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.40d7a914.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.a7a94907.js">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.b499556a.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.43eface2.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/13.29c117de.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.ce270f70.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.1a015dc8.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/12.226cd84d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/14.5385cb61.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.746bc25e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.913a03fb.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.3e84bfb4.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.2e25ccd6.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.8ae9bd7e.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.a46bd120.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.28065e21.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.1d209a45.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.42ea3513.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.ce76527a.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.8846d71d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.04c70b96.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.171c11ae.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.40d7a914.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.a7a94907.js">
     <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css">
   </head>
   <body>
@@ -24,7 +24,224 @@
   关于我
 </a></div><div class="nav-item"><a href="https://github.com/hkc452/slamdunk-the-vue3" target="_blank" rel="noopener noreferrer" class="nav-link external">
   Github
-  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>响应式系统</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/reactivity/effect.html" class="sidebar-link">effect</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/reactive.html" class="sidebar-link">reactive</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/baseHandlers.html" class="sidebar-link">baseHandlers</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/collectionHandlers.html" class="sidebar-link">collectionHandlers</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/ref.html" class="sidebar-link">ref</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/computed.html" class="sidebar-link">computed</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>编译模块</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="sidebar-link">compiler</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/parse.html" class="sidebar-link">parse</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/transform.html" class="active sidebar-link">transform(准备开始施工🚧)</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/slamdunk-the-vue3/main/vue/compiler/transform.html#todo" class="sidebar-link">TODO</a></li></ul></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/codegen.html" class="sidebar-link">codegen</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h2 id="todo"><a href="#todo" class="header-anchor">#</a> TODO</h2></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>响应式系统</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/reactivity/effect.html" class="sidebar-link">effect</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/reactive.html" class="sidebar-link">reactive</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/baseHandlers.html" class="sidebar-link">baseHandlers</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/collectionHandlers.html" class="sidebar-link">collectionHandlers</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/ref.html" class="sidebar-link">ref</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/computed.html" class="sidebar-link">computed</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>编译模块</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="sidebar-link">compiler</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/parse.html" class="sidebar-link">parse</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/transform.html" class="active sidebar-link">transform(正在施工🚧)</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/codegen.html" class="sidebar-link">codegen</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><p>transform 可以说是整个编译模块最复杂庞大的部分，需要对 parse 阶段生成的 AST 节点进行二次分析以及根据 Vue 语法和优化等需要，需要对节点进行调整，从而为最后的 codegen 最后热身准备。</p> <p>我们首先从 complier-dom 的 compile 方法 看到 compiler-core 的 baseCompile 方法。 compiler-dom, 只传入了 transformStyle 的 nodeTransforms，同时传入了 一堆的 DOMDirectiveTransforms 。而 compiler-core 中 通过 getBaseTransformPreset 生成了系列 nodeTransforms 和 directiveTransforms， 同时 传入的 transform 都排在 core 的后面，为什么要提这一点呢？因为对于 transform 来说， 顺序很重要，对于 directiveTransforms 或许没有影响，因为这是对指令的转化，而对于 nodeTransforms 而言，涉及到对 node 节点的转化，同时 node 节点的转化的过程类似 koa 中的洋葱模型，因为每个 nodeTransform 都有类似 enter 和 exit 事件，第一个执行的 nodeTransform 它的 exit 事件最后执行。</p> <p>在下面我们也可以同时看出，baseParse 解析生成的 AST 节点，将会传入 compile 进行转化。</p> <div class="language-js line-numbers-mode"><pre class="language-js"><code><span class="token comment">// compiler-dom</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> DOMNodeTransforms<span class="token operator">:</span> NodeTransform<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span>
+  transformStyle<span class="token punctuation">,</span>
+  <span class="token operator">...</span><span class="token punctuation">(</span>__DEV__ <span class="token operator">?</span> <span class="token punctuation">[</span>warnTransitionChildren<span class="token punctuation">]</span> <span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">]</span>
+
+<span class="token keyword">export</span> <span class="token keyword">const</span> DOMDirectiveTransforms<span class="token operator">:</span> Record<span class="token operator">&lt;</span>string<span class="token punctuation">,</span> DirectiveTransform<span class="token operator">&gt;</span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  cloak<span class="token operator">:</span> noopDirectiveTransform<span class="token punctuation">,</span>
+  html<span class="token operator">:</span> transformVHtml<span class="token punctuation">,</span>
+  text<span class="token operator">:</span> transformVText<span class="token punctuation">,</span>
+  model<span class="token operator">:</span> transformModel<span class="token punctuation">,</span> <span class="token comment">// override compiler-core</span>
+  on<span class="token operator">:</span> transformOn<span class="token punctuation">,</span> <span class="token comment">// override compiler-core</span>
+  show<span class="token operator">:</span> transformShow
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">compile</span><span class="token punctuation">(</span>
+  <span class="token parameter">template<span class="token operator">:</span> string<span class="token punctuation">,</span>
+  options<span class="token operator">:</span> CompilerOptions <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span></span>
+<span class="token punctuation">)</span><span class="token operator">:</span> CodegenResult <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token function">baseCompile</span><span class="token punctuation">(</span>template<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    <span class="token operator">...</span>parserOptions<span class="token punctuation">,</span>
+    <span class="token operator">...</span>options<span class="token punctuation">,</span>
+    nodeTransforms<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token operator">...</span>DOMNodeTransforms<span class="token punctuation">,</span> <span class="token operator">...</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>nodeTransforms <span class="token operator">||</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    directiveTransforms<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token operator">...</span>DOMDirectiveTransforms<span class="token punctuation">,</span>
+      <span class="token operator">...</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>directiveTransforms <span class="token operator">||</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    transformHoist<span class="token operator">:</span> __BROWSER__ <span class="token operator">?</span> <span class="token keyword">null</span> <span class="token operator">:</span> stringifyStatic
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// compiler-core</span>
+<span class="token keyword">const</span> ast <span class="token operator">=</span> <span class="token function">isString</span><span class="token punctuation">(</span>template<span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token function">baseParse</span><span class="token punctuation">(</span>template<span class="token punctuation">,</span> options<span class="token punctuation">)</span> <span class="token operator">:</span> template
+<span class="token keyword">const</span> <span class="token punctuation">[</span>nodeTransforms<span class="token punctuation">,</span> directiveTransforms<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">getBaseTransformPreset</span><span class="token punctuation">(</span>
+    prefixIdentifiers
+<span class="token punctuation">)</span>
+<span class="token function">transform</span><span class="token punctuation">(</span>ast<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    <span class="token operator">...</span>options<span class="token punctuation">,</span>
+    prefixIdentifiers<span class="token punctuation">,</span>
+    nodeTransforms<span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token operator">...</span>nodeTransforms<span class="token punctuation">,</span>
+      <span class="token operator">...</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>nodeTransforms <span class="token operator">||</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token comment">// user transforms</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    directiveTransforms<span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token operator">...</span>directiveTransforms<span class="token punctuation">,</span>
+      <span class="token operator">...</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span>directiveTransforms <span class="token operator">||</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token comment">// user transforms</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br></div></div><p>那接下来我们先看看 transform 到底干了啥，为什么还需要这么多插件呢。可以看到 Vue 里面的代码风格还是很一致的，首先生成解析的上下文 context，然后调用 traverseNode 去遍历转化我们 node，然后 要不要对我们的 hoist 进行转化，还有生成 Root 节点的 codegenNode，codegenNode 看名字就知道是用于 codegen 时使用的。至于最后的  meta information，我们在 traverseNode 的时候，会对 context 进行赋值，最后会把 context 的值赋给 Root，这个参数干嘛的呢，举个栗子， helpers 就是 runtime 需要引入的 runtime 方法，我们在这里存好，方便在 codegen 的时候引入进来。</p> <div class="language-js line-numbers-mode"><pre class="language-js"><code><span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">transform</span><span class="token punctuation">(</span><span class="token parameter">root<span class="token operator">:</span> RootNode<span class="token punctuation">,</span> options<span class="token operator">:</span> TransformOptions</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> context <span class="token operator">=</span> <span class="token function">createTransformContext</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> options<span class="token punctuation">)</span>
+  <span class="token function">traverseNode</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> context<span class="token punctuation">)</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>options<span class="token punctuation">.</span>hoistStatic<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">hoistStatic</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> context<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>options<span class="token punctuation">.</span>ssr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">createRootCodegen</span><span class="token punctuation">(</span>root<span class="token punctuation">,</span> context<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">// finalize meta information</span>
+  root<span class="token punctuation">.</span>helpers <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">...</span>context<span class="token punctuation">.</span>helpers<span class="token punctuation">]</span>
+  root<span class="token punctuation">.</span>components <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">...</span>context<span class="token punctuation">.</span>components<span class="token punctuation">]</span>
+  root<span class="token punctuation">.</span>directives <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">...</span>context<span class="token punctuation">.</span>directives<span class="token punctuation">]</span>
+  root<span class="token punctuation">.</span>imports <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">...</span>context<span class="token punctuation">.</span>imports<span class="token punctuation">]</span>
+  root<span class="token punctuation">.</span>hoists <span class="token operator">=</span> context<span class="token punctuation">.</span>hoists
+  root<span class="token punctuation">.</span>temps <span class="token operator">=</span> context<span class="token punctuation">.</span>temps
+  root<span class="token punctuation">.</span>cached <span class="token operator">=</span> context<span class="token punctuation">.</span>cached
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br></div></div><p>下面我们先看看 createTransformContext，相比于 parse 的上下文来说，这个还是蛮复杂的。不过，从下面的源码中，我们也可以大致看到几个分类，options、state 和 methods。</p> <p>options 中有些已经说过了，这里挑几个没讲过的，cacheHandlers 就是要不要缓存函数的，<code>{ onClick: _cache[0] || (_cache[0] = e =&gt; _ctx.foo(e)) }</code>，这个在 compiler 时候参数校验说过， expressionPlugins 是用于 transformExpressions 时，<code>@babel/parse</code> 的插件。</p> <p>state 主要是用于存放 transform 需要的全局变量，用于状态的保存。而 methods 主要用于操作 state 以及 节点进行节本的操作。</p> <div class="language- line-numbers-mode"><pre class="language-text"><code>export function createTransformContext(
+  root: RootNode,
+  {
+    prefixIdentifiers = false,
+    hoistStatic = false,
+    cacheHandlers = false,
+    nodeTransforms = [],
+    directiveTransforms = {},
+    transformHoist = null,
+    isBuiltInComponent = NOOP,
+    expressionPlugins = [],
+    scopeId = null,
+    ssr = false,
+    onError = defaultOnError
+  }: TransformOptions
+): TransformContext {
+  const context: TransformContext = {
+    // options
+    prefixIdentifiers,
+    hoistStatic,
+    cacheHandlers,
+    nodeTransforms,
+    directiveTransforms,
+    transformHoist,
+    isBuiltInComponent,
+    expressionPlugins,
+    scopeId,
+    ssr,
+    onError,
+
+    // state
+    root,
+    helpers: new Set(),
+    components: new Set(),
+    directives: new Set(),
+    hoists: [],
+    imports: new Set(),
+    temps: 0,
+    cached: 0,
+    identifiers: {},
+    scopes: {
+      vFor: 0,
+      vSlot: 0,
+      vPre: 0,
+      vOnce: 0
+    },
+    parent: null,
+    currentNode: root,
+    childIndex: 0,
+
+    // methods
+    helper(name) {
+      context.helpers.add(name)
+      return name
+    },
+    helperString(name) {
+      return `_${helperNameMap[context.helper(name)]}`
+    },
+    replaceNode(node) {
+      /* istanbul ignore if */
+      if (__DEV__) {
+        if (!context.currentNode) {
+          throw new Error(`Node being replaced is already removed.`)
+        }
+        if (!context.parent) {
+          throw new Error(`Cannot replace root node.`)
+        }
+      }
+      context.parent!.children[context.childIndex] = context.currentNode = node
+    },
+    removeNode(node) {
+      if (__DEV__ &amp;&amp; !context.parent) {
+        throw new Error(`Cannot remove root node.`)
+      }
+      const list = context.parent!.children
+      const removalIndex = node
+        ? list.indexOf(node)
+        : context.currentNode
+          ? context.childIndex
+          : -1
+      /* istanbul ignore if */
+      if (__DEV__ &amp;&amp; removalIndex &lt; 0) {
+        throw new Error(`node being removed is not a child of current parent`)
+      }
+      if (!node || node === context.currentNode) {
+        // current node removed
+        context.currentNode = null
+        context.onNodeRemoved()
+      } else {
+        // sibling node removed
+        if (context.childIndex &gt; removalIndex) {
+          context.childIndex--
+          context.onNodeRemoved()
+        }
+      }
+      context.parent!.children.splice(removalIndex, 1)
+    },
+    onNodeRemoved: () =&gt; {},
+    addIdentifiers(exp) {
+      // identifier tracking only happens in non-browser builds.
+      if (!__BROWSER__) {
+        if (isString(exp)) {
+          addId(exp)
+        } else if (exp.identifiers) {
+          exp.identifiers.forEach(addId)
+        } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+          addId(exp.content)
+        }
+      }
+    },
+    removeIdentifiers(exp) {
+      if (!__BROWSER__) {
+        if (isString(exp)) {
+          removeId(exp)
+        } else if (exp.identifiers) {
+          exp.identifiers.forEach(removeId)
+        } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+          removeId(exp.content)
+        }
+      }
+    },
+    hoist(exp) {
+      context.hoists.push(exp)
+      const identifier = createSimpleExpression(
+        `_hoisted_${context.hoists.length}`,
+        false,
+        exp.loc,
+        true
+      )
+      identifier.hoisted = exp
+      return identifier
+    },
+    cache(exp, isVNode = false) {
+      return createCacheExpression(++context.cached, exp, isVNode)
+    }
+  }
+
+  function addId(id: string) {
+    const { identifiers } = context
+    if (identifiers[id] === undefined) {
+      identifiers[id] = 0
+    }
+    identifiers[id]!++
+  }
+
+  function removeId(id: string) {
+    context.identifiers[id]!--
+  }
+
+  return context
+}
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br><span class="line-number">50</span><br><span class="line-number">51</span><br><span class="line-number">52</span><br><span class="line-number">53</span><br><span class="line-number">54</span><br><span class="line-number">55</span><br><span class="line-number">56</span><br><span class="line-number">57</span><br><span class="line-number">58</span><br><span class="line-number">59</span><br><span class="line-number">60</span><br><span class="line-number">61</span><br><span class="line-number">62</span><br><span class="line-number">63</span><br><span class="line-number">64</span><br><span class="line-number">65</span><br><span class="line-number">66</span><br><span class="line-number">67</span><br><span class="line-number">68</span><br><span class="line-number">69</span><br><span class="line-number">70</span><br><span class="line-number">71</span><br><span class="line-number">72</span><br><span class="line-number">73</span><br><span class="line-number">74</span><br><span class="line-number">75</span><br><span class="line-number">76</span><br><span class="line-number">77</span><br><span class="line-number">78</span><br><span class="line-number">79</span><br><span class="line-number">80</span><br><span class="line-number">81</span><br><span class="line-number">82</span><br><span class="line-number">83</span><br><span class="line-number">84</span><br><span class="line-number">85</span><br><span class="line-number">86</span><br><span class="line-number">87</span><br><span class="line-number">88</span><br><span class="line-number">89</span><br><span class="line-number">90</span><br><span class="line-number">91</span><br><span class="line-number">92</span><br><span class="line-number">93</span><br><span class="line-number">94</span><br><span class="line-number">95</span><br><span class="line-number">96</span><br><span class="line-number">97</span><br><span class="line-number">98</span><br><span class="line-number">99</span><br><span class="line-number">100</span><br><span class="line-number">101</span><br><span class="line-number">102</span><br><span class="line-number">103</span><br><span class="line-number">104</span><br><span class="line-number">105</span><br><span class="line-number">106</span><br><span class="line-number">107</span><br><span class="line-number">108</span><br><span class="line-number">109</span><br><span class="line-number">110</span><br><span class="line-number">111</span><br><span class="line-number">112</span><br><span class="line-number">113</span><br><span class="line-number">114</span><br><span class="line-number">115</span><br><span class="line-number">116</span><br><span class="line-number">117</span><br><span class="line-number">118</span><br><span class="line-number">119</span><br><span class="line-number">120</span><br><span class="line-number">121</span><br><span class="line-number">122</span><br><span class="line-number">123</span><br><span class="line-number">124</span><br><span class="line-number">125</span><br><span class="line-number">126</span><br><span class="line-number">127</span><br><span class="line-number">128</span><br><span class="line-number">129</span><br><span class="line-number">130</span><br><span class="line-number">131</span><br><span class="line-number">132</span><br><span class="line-number">133</span><br><span class="line-number">134</span><br><span class="line-number">135</span><br><span class="line-number">136</span><br><span class="line-number">137</span><br><span class="line-number">138</span><br><span class="line-number">139</span><br><span class="line-number">140</span><br><span class="line-number">141</span><br><span class="line-number">142</span><br><span class="line-number">143</span><br><span class="line-number">144</span><br><span class="line-number">145</span><br><span class="line-number">146</span><br><span class="line-number">147</span><br><span class="line-number">148</span><br><span class="line-number">149</span><br><span class="line-number">150</span><br><span class="line-number">151</span><br></div></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
       ←
       <a href="/slamdunk-the-vue3/main/vue/compiler/parse.html" class="prev">
         parse
@@ -33,6 +250,6 @@
       </a>
       →
     </span></p></div> </main></div><div class="global-ui"></div></div>
-    <script src="/slamdunk-the-vue3/assets/js/app.df08d815.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.43eface2.js" defer></script><script src="/slamdunk-the-vue3/assets/js/13.501f5dc8.js" defer></script>
+    <script src="/slamdunk-the-vue3/assets/js/app.b499556a.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.43eface2.js" defer></script><script src="/slamdunk-the-vue3/assets/js/13.29c117de.js" defer></script>
   </body>
 </html>
