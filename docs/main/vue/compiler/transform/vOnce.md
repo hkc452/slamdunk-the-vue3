@@ -45,7 +45,7 @@ transform(ast, {
 })
 ```
 
-我们现在来看看 vOnce，vOnce 要做的事情很简单，对于 type 是 NodeTypes.ELEMENT，且上面有 v-once 指令的，首先把需要的运行时方法添加通过 context.helper 添加进 helpers，然后什么都不做，对的，只返回 exitfn，因为 v-once 需要做的就是缓存其他 transform 处理的节点处理，需要放在最前面，这样他的 exitfn 才可以是最后执行，这样 node.codegenNode 就能通过 context.cache 缓存起来。
+我们现在来看看 vOnce，vOnce 要做的事情很简单，对于 type 是 NodeTypes.ELEMENT，且上面有 v-once 指令的，首先把需要的运行时方法添加通过 context.helper 添加进 helpers，然后什么都不做，对的，只返回 exitfn，因为 v-once 需要做的就是缓存其他 transform 对节点处理，需要放在最前面，这样他的 exitfn 才可以是最后执行，这样 node.codegenNode 就能通过 context.cache 缓存起来。
 
 ```js
 export const transformOnce: NodeTransform = (node, context) => {
