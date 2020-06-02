@@ -207,7 +207,7 @@ export function createConditionalExpression(
 
 首先找到当前节点所有相邻节点，这个通过 parent 去拿它的 children，然后找到当前节点的索引，我们假设如果存在 if节点，那么他一定在当前节点的前面，所以我们往前面开始遍历。遇到注释节点，就把他移除，同时塞进 comments。如果遇到了 NodeTypes.IF 节点，那就太好了，他就是我们要找的节点。我们首先把当前节点从父节点那里移除掉，然后给当前节点创建分支，然后塞到 NodeTypes.IF 的 branch 里面，再调用 processCodegen 生成 onExit，前面我们知道，注意这是 processCodegen 最后参数为 false， 他传入的 sibling 就是 顶部的 if node，这样让我们 codegenNode 通过 alternate 把不同分支链接起来。还有就是，我们的当前 node 被移除了，也就是说，它在 nodesTransforms 中的循环提前终止了，但是它还有其他需要转化啊，所以需要手动调用 traverseNode 去遍历，他会落到 switch 中的 IF_BRANCH 分支中。
 
-注意对于一开始 `dir.name === 'if'` 来说，当它回到 traverseNode 时，它是 NodeTypes.IF 类型，然后我们会遍历它的 branches，其实他的branch 这时注意 if 一个分支，遍历 if 分支的时候，有掉入了 NodeTypes.IF_BRANCH 中。
+注意对于一开始 `dir.name === 'if'` 来说，当它回到 traverseNode 时，它是 NodeTypes.IF 类型，然后我们会遍历它的 branches，其实他的branch 这时只有 if 一个分支，遍历 if 分支的时候，有掉入了 NodeTypes.IF_BRANCH 中。
 ```js
 else {
     // locate the adjacent v-if
