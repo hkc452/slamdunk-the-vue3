@@ -205,9 +205,11 @@ export function createConditionalExpression(
 
 我们回到 processIf 中的 else，即 name 不是 if 的分支，我们从上面知道其他分支都要挂载到 if 分支下面，那具体是怎么挂载的呢？
 
-首先找到当前节点所有相邻节点，这个通过 parent 去拿它的 children，然后找到当前节点的索引，我们假设如果存在 if节点，那么他一定在当前节点的前面，所以我们往前面开始遍历。遇到注释节点，就把他移除，同时塞进 comments。如果遇到了 NodeTypes.IF 节点，那就太好了，他就是我们要找的节点。我们首先把当前节点从父节点那里移除掉，然后给当前节点创建分支，然后塞到 NodeTypes.IF 的 branch 里面，再调用 processCodegen 生成 onExit，前面我们知道，注意这是 processCodegen 最后参数为 false， 他传入的 sibling 就是 顶部的 if node，这样让我们 codegenNode 通过 alternate 把不同分支链接起来。还有就是，我们的当前 node 被移除了，也就是说，它在 nodesTransforms 中的循环提前终止了，但是它还有其他需要转化啊，所以需要手动调用 traverseNode 去遍历，他会落到 switch 中的 IF_BRANCH 分支中。
+首先找到当前节点所有相邻节点，这个通过 parent 去拿它的 children，然后找到当前节点的索引，我们假设如果存在 if节点，那么他一定在当前节点的前面，所以我们往前面开始遍历。遇到注释节点，就把他移除，同时塞进 comments。如果遇到了 NodeTypes.IF 节点，那就太好了，他就是我们要找的节点。我们首先把当前节点从父节点那里移除掉，然后给当前节点创建分支，然后塞到 NodeTypes.IF 的 branch 里面，再调用 processCodegen 生成 onExit，前面我们知道，注意这是 processCodegen 最后参数为 false， 他传入的 sibling 就是 顶部的 if node，这样让我们 codegenNode 通过 alternate 把不同分支链接起来。还有就是，我们的当前 node 被移除了，也就是说，它在 nodesTransforms 中的循环提前终止了，但是它还有其他需要转化啊，所以需要手动调用 traverseNode 去遍历，他会落到 switch 中的 IF_BRANCH 分支中。还有一点，就是其他分支不会返回 exitFn，因为循环终止了，就算返回也不会被调用，所以 exitFn 也手动调用。
 
-注意对于一开始 `dir.name === 'if'` 来说，当它回到 traverseNode 时，它是 NodeTypes.IF 类型，然后我们会遍历它的 branches，其实他的branch 这时只有 if 一个分支，遍历 if 分支的时候，有掉入了 NodeTypes.IF_BRANCH 中。
+那如果找不到 if 分支呢？ 上报 `ErrorCodes.X_V_ELSE_NO_ADJACENT_IF` 错误。而对于这个循环来说，只要当前节点前面的节点不是注释分支，都会直接 break，也许会疑问，为什么不能是其他分支呢？其他分支都在前面从父节点移除了啊。
+
+注意对于一开始 `dir.name === 'if'` 来说，当它回到 traverseNode 时，它是 NodeTypes.IF 类型，然后我们会遍历它的 branches，其实他的branch 这时只有 if 一个分支，遍历 if 分支的时候，又掉入了 NodeTypes.IF_BRANCH 中。
 ```js
 else {
     // locate the adjacent v-if
@@ -247,3 +249,93 @@ else {
     }
   }
 ```
+对于 vIf，只剩下 createCodegenNodeForBranch 还没讲。我们知道这个方法是在 exitFn 上面调用，用于生成 codeGenNode的。下面我们知道，除了 else 分支，返回的 都是 createConditionalExpression，这也是为了链接不同分支。而不管是什么分支，最终真正意义上的 codeGenNode 都是通过 createChildrenCodegenNode 创建。
+```js
+function createCodegenNodeForBranch(
+  branch: IfBranchNode,
+  index: number,
+  context: TransformContext
+): IfConditionalExpression | BlockCodegenNode {
+  if (branch.condition) {
+    return createConditionalExpression(
+      branch.condition,
+      createChildrenCodegenNode(branch, index, context),
+      // make sure to pass in asBlock: true so that the comment node call
+      // closes the current block.
+      createCallExpression(context.helper(CREATE_COMMENT), [
+        __DEV__ ? '"v-if"' : '""',
+        'true'
+      ])
+    ) as IfConditionalExpression
+  } else {
+    return createChildrenCodegenNode(branch, index, context)
+  }
+}
+```
+那就来看看 createChildrenCodegenNode吧。首先我们创建 keyProperty ，用于优化  diff，会被注入到我们生成的 codeGenNode 中。接着我们拿出分支中的第一个child firstChild。我们先判断 children 需不需被 FRAGMENT 包住，如果 children 长度不为 1 或者 长度为1但第一个元素类似不是 NodeTypes.ELEMENT 时，可能需要用 FRAGMENT 包住，注意 patchFlag 为 STABLE_FRAGMENT，diff 时 要用到。但是有个例外，就是只有一个元素且元素是 NodeTypes.FOR 类型，这时候我们不需要包住，因为 FOR 类型本身都要 FRAGMENT 包住了。
+
+而对于不需要FRAGMENT 包住的 else 分支，即chidren 长度为 1 且 type 为 NodeTypes.ELEMENT，我们需要取出 firstChild 的 codegenNode，VNODE_CALL 类型是在 parseElement 时候生成的，codegenNode 也是那时候生成的，就是用于创建 VNode, 对于类型是 VNODE_CALL，对于 tagType 是 COMPONENT 且 tag 是 TELEPORT，需要用 block 包住，会标记 isBlock 为 true ，同时为 runtime 注入两个方法。tagType 是 COMPONENT 的其他 Tag 默认 isBlock 为 true 了。至于 block 干嘛用的，就是用于加速 diff 时，对于动态节点的优化，就是传闻中的 block tree，diff 时只对 block 部分进行 diff，毕竟 动态节点中也有不变的部分，但这部分又不能被 hoist 也不需要被 diff，通过 block 我们可以跳过这部分的 diff。
+
+可能这块看的有点懵，主要是 diff 这块还没讲，可以先看着先，后续会讲到。
+```js
+function createChildrenCodegenNode(
+  branch: IfBranchNode,
+  index: number,
+  context: TransformContext
+): BlockCodegenNode {
+  const { helper } = context
+  const keyProperty = createObjectProperty(
+    `key`,
+    createSimpleExpression(index + '', false)
+  )
+  const { children } = branch
+  const firstChild = children[0]
+  const needFragmentWrapper =
+    children.length !== 1 || firstChild.type !== NodeTypes.ELEMENT
+  if (needFragmentWrapper) {
+    if (children.length === 1 && firstChild.type === NodeTypes.FOR) {
+      // optimize away nested fragments when child is a ForNode
+      const vnodeCall = firstChild.codegenNode!
+      injectProp(vnodeCall, keyProperty, context)
+      return vnodeCall
+    } else {
+      return createVNodeCall(
+        context,
+        helper(FRAGMENT),
+        createObjectExpression([keyProperty]),
+        children,
+        `${PatchFlags.STABLE_FRAGMENT} /* ${
+          PatchFlagNames[PatchFlags.STABLE_FRAGMENT]
+        } */`,
+        undefined,
+        undefined,
+        true,
+        false,
+        branch.loc
+      )
+    }
+  } else {
+    const vnodeCall = (firstChild as ElementNode)
+      .codegenNode as BlockCodegenNode
+    // Change createVNode to createBlock.
+    if (
+      vnodeCall.type === NodeTypes.VNODE_CALL &&
+      // component vnodes are always tracked and its children are
+      // compiled into slots so no need to make it a block
+      ((firstChild as ElementNode).tagType !== ElementTypes.COMPONENT ||
+        // teleport has component type but isn't always tracked
+        vnodeCall.tag === TELEPORT)
+    ) {
+      vnodeCall.isBlock = true
+      helper(OPEN_BLOCK)
+      helper(CREATE_BLOCK)
+    }
+    // inject branch key
+    injectProp(vnodeCall, keyProperty, context)
+    return vnodeCall
+  }
+}
+```
+
+
+总结，对于 vIf 来说，NodeTypes.IF 节点是所有分支的容器，通过 branches 挂载着不同的分支，每个分支就是 NodeTypes.IF_BRANCH，所有分支的 codeGenNode 都是通过容器相链接，通过 alternate 链接到下一个 codeGenNode。
