@@ -274,7 +274,7 @@ function createCodegenNodeForBranch(
 ```
 那就来看看 createChildrenCodegenNode吧。首先我们创建 keyProperty ，用于优化  diff，会被注入到我们生成的 codeGenNode 中。接着我们拿出分支中的第一个child firstChild。我们先判断 children 需不需被 FRAGMENT 包住，如果 children 长度不为 1 或者 长度为1但第一个元素类似不是 NodeTypes.ELEMENT 时，可能需要用 FRAGMENT 包住，注意 patchFlag 为 STABLE_FRAGMENT，diff 时 要用到。但是有个例外，就是只有一个元素且元素是 NodeTypes.FOR 类型，这时候我们不需要包住，因为 FOR 类型本身都要 FRAGMENT 包住了。
 
-而对于不需要FRAGMENT 包住的 else 分支，即chidren 长度为 1 且 type 为 NodeTypes.ELEMENT，我们需要取出 firstChild 的 codegenNode，VNODE_CALL 类型是在 parseElement 时候生成的，codegenNode 也是那时候生成的，就是用于创建 VNode, 对于类型是 VNODE_CALL，对于 tagType 是 COMPONENT 且 tag 是 TELEPORT，需要用 block 包住，会标记 isBlock 为 true ，同时为 runtime 注入两个方法。tagType 是 COMPONENT 的其他 Tag 默认 isBlock 为 true 了。至于 block 干嘛用的，就是用于加速 diff 时，对于动态节点的优化，就是传闻中的 block tree，diff 时只对 block 部分进行 diff，毕竟 动态节点中也有不变的部分，但这部分又不能被 hoist 也不需要被 diff，通过 block 我们可以跳过这部分的 diff。
+而对于不需要FRAGMENT 包住的 else 分支，即chidren 长度为 1 且 type 为 NodeTypes.ELEMENT，我们需要取出 firstChild 的 codegenNode，VNODE_CALL 类型是在 parseElement 时候生成的，codegenNode 也是那时候生成的，就是用于创建 VNode, 对于类型是 VNODE_CALL，对于 tagType 是 COMPONENT 且 tag 是 TELEPORT、或者根据 parse 的生成的 tagType 还可能是 slot、template，需要用 block 包住，会标记 isBlock 为 true ，同时为 runtime 注入两个方法。tagType 是 COMPONENT 的其他 Tag 默认 isBlock 为 true 了。至于 block 干嘛用的，就是用于加速 diff 时，对于动态节点的优化，就是传闻中的 block tree，diff 时只对 block 部分进行 diff，毕竟 动态节点中也有不变的部分，但这部分又不能被 hoist 也不需要被 diff，通过 block 我们可以跳过这部分的 diff。
 
 可能这块看的有点懵，主要是 diff 这块还没讲，可以先看着先，后续会讲到。
 ```js
