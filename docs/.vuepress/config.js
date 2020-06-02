@@ -39,7 +39,8 @@ module.exports = {
                           children: [
                             ['vue/compiler/transform', 'transform'],
                             ['vue/compiler/transform/vOnce', 'vOnce'],
-                            ['vue/compiler/transform/vIf', 'vIf']
+                            ['vue/compiler/transform/vIf', 'vIf'],
+                            ['vue/compiler/transform/vFor', 'vFor'],
                           ]
                         },
                         // ['vue/compiler/transform', 'transform(正在施工🚧)'],
