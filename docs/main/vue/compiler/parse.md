@@ -216,13 +216,13 @@ if (mode === TextModes.DATA || mode === TextModes.RCDATA) {
         // '{{'
         node = parseInterpolation(context, mode)
       } else if (mode === TextModes.DATA && s[0] === '<') {
-       
+
     }
 }
 ```
 parseInterpolation 插值函数如下，拿到界定符，判断有没有结束界定符，没有的话，抛出错误，返回 undefined ，这样后续可以被上面解读的 parseText 进行处理。start 是插值符的开始位置， innerStart 是 插值内容开始的位置，这个会被进行二次修复，因为内容前面可能会有空格，同样 innerEnd 是指插值内容结束的位置，也会被二次修复，但是为什么 ` const endOffset =
     rawContentLength - (preTrimContent.length - content.length - startOffset)` 这样算呢？
-    
+
 首先 rawContentLength 是原始插值的长度，里面可能包含前后空格以及内容可能需要解码，如果需要解码，解码后的内容是比没有解码前的内容长度要短的，`(preTrimContent.length - content.length - startOffset)` 拿到的是内容后面空格的长度，所以 endOffset 就是原始插值减去后面空格的长度，修复 innerEnd 之后，继续把 context 推向前 close 的长度，最后返回节点类型为 NodeTypes.INTERPOLATION，content 为 NodeTypes.SIMPLE_EXPRESSION 类型，其中 isConstant 会在 transformExpression 真正确定下来，这里默认为 false。
 ``` js
 function parseInterpolation(
@@ -589,7 +589,7 @@ function parseTag(
   }
 
   ...
-  
+
   return {
     type: NodeTypes.ELEMENT,
     ns,
@@ -634,7 +634,7 @@ if (!context.inVPre && !options.isCustomElement(tag)) {
     ) {
       tagType = ElementTypes.COMPONENT
     }
-    
+
     if (tag === 'slot') {
       tagType = ElementTypes.SLOT
     } else if (
@@ -690,7 +690,7 @@ return {
     codegenNode: undefined // to be created during transform phase
 }
 ```
-getNamespace 主要是对为了获取正确的命名空间，正如我们在上面一直说的，不同的命名空间会对解析是有影响的，对于 dom 平台来说，目前就三种命名空间，`DOMNamespaces.HTML` html 命名空间，`DOMNamespaces.MATH_ML` math ml 命名空间，`DOMNamespaces.SVG` svg 命名空间。 
+getNamespace 主要是对为了获取正确的命名空间，正如我们在上面一直说的，不同的命名空间会对解析是有影响的，对于 dom 平台来说，目前就三种命名空间，`DOMNamespaces.HTML` html 命名空间，`DOMNamespaces.MATH_ML` math ml 命名空间，`DOMNamespaces.SVG` svg 命名空间。
 
 在 getNamespace 内部，首先拿到父级的命名空间，默认是 DOMNamespaces.HTML。需要注意的是，如果没有我们没有对 ns 变量进行覆盖或者提前 return，则说明当前 tag 的 ns 跟 父级的 ns 一样，因为函数最后的把 ns 返回去的。
 
@@ -701,7 +701,7 @@ getNamespace 主要是对为了获取正确的命名空间，正如我们在上�
 而对于父级是 SVG 的 ns，只有父级 tag 是 ` parent.tag === 'foreignObject' ||
         parent.tag === 'desc' ||
         parent.tag === 'title'` 这些 tag 的时候，当前 tag 才算在 HTML 的ns，否则继续 SVG 的 ns。
-        
+
 最后对于父级 ns 为 HTML 的处理，主要当前 tag 是 `svg` 或者 `math`, 则会变化 ns 为 SVG 或者 MATH_ML。
 
 ``` js
@@ -857,8 +857,8 @@ function parseAttribute(
   }
   const loc = getSelection(context, start)
 
-  ... 
- 
+  ...
+
   return {
     type: NodeTypes.ATTRIBUTE,
     name,
@@ -929,7 +929,7 @@ function parseAttributeValue(
 }
 ```
 
-现在我们再来看看 parseAttribute 中对 指令属性的处理。如果出于 inVPre 环境，则我们不需要对指令进行处理，但是有可能我们父级不是 inVPre，但当前 tag 有 v-pre 指令，我们可能一开始进去这里处理了，后面解析完毕之后，发现不需要二次处理，所以需要重新重新解析属性。但为什么不在这里做个校验呢？奇怪了
+现在我们再来看看 parseAttribute 中对 指令属性的处理。如果出于 inVPre 环境，则我们不需要对指令进行处理，但是有可能我们父级不是 inVPre，但当前 tag 有 v-pre 指令，我们可能一开始进去这里处理了，后面解析完毕之后，发现不需要二次处理，所以需要重新重新解析属性。这个没办法做前置校验，因为只有解析完属性之后才知道有没有 v-pre 指令。
 
 `/^(v-|:|@|#)/.test(name)` 这个正则是为了初步判断属性是不是指令，在进去 if 判断之后，会用正则做进一步的判断，`/(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i` 这个看起来很复杂的正则，就是为了提取属性名中的指令名、指令的参数以及执行的修饰符。
 
@@ -944,9 +944,9 @@ if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
     const match = /(?:^v-([a-z0-9-]+))?(?:(?::|^@|^#)([^\.]+))?(.+)?$/i.exec(
       name
     )!
-    
+
     let arg: ExpressionNode | undefined
-    
+
     if (match[2]) {
       const startOffset = name.indexOf(match[2])
       const loc = getSelection(
@@ -956,20 +956,20 @@ if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
       )
       let content = match[2]
       let isStatic = true
-    
+
       if (content.startsWith('[')) {
         isStatic = false
-    
+
         if (!content.endsWith(']')) {
           emitError(
             context,
             ErrorCodes.X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END
           )
         }
-    
+
         content = content.substr(1, content.length - 2)
       }
-    
+
       arg = {
         type: NodeTypes.SIMPLE_EXPRESSION,
         content,
@@ -978,7 +978,7 @@ if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
         loc
       }
     }
-    
+
     if (value && value.isQuoted) {
       const valueLoc = value.loc
       valueLoc.start.offset++
@@ -986,7 +986,7 @@ if (!context.inVPre && /^(v-|:|@|#)/.test(name)) {
       valueLoc.end = advancePositionWithClone(valueLoc.start, value.content)
       valueLoc.source = valueLoc.source.slice(1, -1)
     }
-    
+
     return {
       type: NodeTypes.DIRECTIVE,
       name:
@@ -1019,7 +1019,7 @@ isPreBoundary 为 true，说明我们这个元素就是 pre ，因为 wasInPre �
 
 对于元素自己关闭的，或者是平台的 isVoidTag ，直接返回 element，因为不需要下面的解析子元素和结束标签。
 
-对于解析子元素前，首先把当前元素推入 ancestors 中，ancestors 影响到了我们怎么去结束 parseChildren、namespace 的判断等等，同时这也是解析中唯一入栈的地方，也就是说，对于其他解析来说，如paeComment、paserBogusComment 等等，都是没有子元素的，我们从 parseTag 的 AST 看到 children 也可以大概猜到了。接着拿 mode，getTextMode 最上面讲过，我们可以看到，只有当前元素命名空间是 DOMNamespaces.HTML 时，getTextMode 才会返回其他的TextModes，否则一律都是 TextModes.DATA，而我们也知道，parseChildren 只对 `mode === TextModes.DATA || mode === TextModes.RCDATA` 这两个模式有细致的解析，不然都是走粗暴的 parseText。 parseChildren 解析完毕之后，返回的 nodes 节点，塞入  element 的 children，同时把 element 从 ancestors 中弹出。然后我们看看我们的 element 有没有关闭标签，如果有，调用 parseTag 去解析，别忘记前面这个关闭标签不能有属性，这个返回的 AST 不需要保存，我们只是为了推进 context。如果没有关闭标签，上报 `X_MISSING_END_TAG`, 而如果甚至连 source 也没了，element 的 tag 是 script，且当前第一个元素是注释，上报 `EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT`,很懵圈是不，来，给你看测试用例, 
+对于解析子元素前，首先把当前元素推入 ancestors 中，ancestors 影响到了我们怎么去结束 parseChildren、namespace 的判断等等，同时这也是解析中唯一入栈的地方，也就是说，对于其他解析来说，如paeComment、paserBogusComment 等等，都是没有子元素的，我们从 parseTag 的 AST 看到 children 也可以大概猜到了。接着拿 mode，getTextMode 最上面讲过，我们可以看到，只有当前元素命名空间是 DOMNamespaces.HTML 时，getTextMode 才会返回其他的TextModes，否则一律都是 TextModes.DATA，而我们也知道，parseChildren 只对 `mode === TextModes.DATA || mode === TextModes.RCDATA` 这两个模式有细致的解析，不然都是走粗暴的 parseText。 parseChildren 解析完毕之后，返回的 nodes 节点，塞入  element 的 children，同时把 element 从 ancestors 中弹出。然后我们看看我们的 element 有没有关闭标签，如果有，调用 parseTag 去解析，别忘记前面这个关闭标签不能有属性，这个返回的 AST 不需要保存，我们只是为了推进 context。如果没有关闭标签，上报 `X_MISSING_END_TAG`, 而如果甚至连 source 也没了，element 的 tag 是 script，且当前第一个元素是注释，上报 `EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT`,很懵圈是不，来，给你看测试用例,
 `<script><!--console.log('hello')`, get ？
 
 parseElement 修复结束标签的位置，同时重置 context 中的 inPre 和 inVPre, 可以看到 parseElement 相比于 parseTag 的AST，就是添加了子元素的 AST，同时修复 loc，还有消费结束标签。
