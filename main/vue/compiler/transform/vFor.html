@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Vue3.0 源码解读</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    <link rel="icon" href="/slamdunk-the-vue3/onepunch.jpeg">
+    <script src="https://hm.baidu.com/hm.js?4484bd6412288feacc311fd7f2054116"></script>
+    <meta name="description" content="Vue3.0 源码解读">
+    <link rel="preload" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css" as="style"><link rel="preload" href="/slamdunk-the-vue3/assets/js/app.d4e24298.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/2.43eface2.js" as="script"><link rel="preload" href="/slamdunk-the-vue3/assets/js/14.0c06e2ae.js" as="script"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/10.ce270f70.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/11.1a015dc8.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/12.3286883d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/13.64717b64.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/15.d539f7f5.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/16.37dd25c3.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/17.48f666fe.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/18.1f6d93f7.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/19.ef5cac7a.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/20.87438f29.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/21.64d27466.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/22.9daf954b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/23.98fccd7b.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/24.4875546c.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/25.52e59918.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/3.ad5b36ac.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/4.ce76527a.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/5.8846d71d.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/6.04c70b96.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/7.171c11ae.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/8.40d7a914.js"><link rel="prefetch" href="/slamdunk-the-vue3/assets/js/9.a7a94907.js">
+    <link rel="stylesheet" href="/slamdunk-the-vue3/assets/css/0.styles.8a77ab8b.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/slamdunk-the-vue3/" class="home-link router-link-active"><!----> <span class="site-name">Vue3.0 源码解读</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/slamdunk-the-vue3/main/" class="nav-link router-link-active">
+  Vue 3.0 解读
+</a></div><div class="nav-item"><a href="/slamdunk-the-vue3/about.html" class="nav-link">
+  关于我
+</a></div><div class="nav-item"><a href="https://github.com/hkc452/slamdunk-the-vue3" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/slamdunk-the-vue3/main/" class="nav-link router-link-active">
+  Vue 3.0 解读
+</a></div><div class="nav-item"><a href="/slamdunk-the-vue3/about.html" class="nav-link">
+  关于我
+</a></div><div class="nav-item"><a href="https://github.com/hkc452/slamdunk-the-vue3" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>响应式系统</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/reactivity/effect.html" class="sidebar-link">effect</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/reactive.html" class="sidebar-link">reactive</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/baseHandlers.html" class="sidebar-link">baseHandlers</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/collectionHandlers.html" class="sidebar-link">collectionHandlers</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/ref.html" class="sidebar-link">ref</a></li><li><a href="/slamdunk-the-vue3/main/vue/reactivity/computed.html" class="sidebar-link">computed</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>编译模块</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/compiler/compiler.html" class="sidebar-link">compiler</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/parse.html" class="sidebar-link">parse</a></li><li><section class="sidebar-group collapsable is-sub-group depth-1"><p class="sidebar-heading open"><span>transform(正在施工🚧)</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/slamdunk-the-vue3/main/vue/compiler/transform.html" class="sidebar-link">transform</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/transform/vOnce.html" class="sidebar-link">vOnce</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/transform/vIf.html" class="sidebar-link">vIf</a></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/transform/vFor.html" class="active sidebar-link">vFor</a></li></ul></section></li><li><a href="/slamdunk-the-vue3/main/vue/compiler/codegen.html" class="sidebar-link">codegen</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><p>接下来， vFor transform，需要注意的是，就像在 vIf 说的， vFor 也是结构化的指令变化，属于 nodeTransform 的一个分支。</p> <p>createStructuralDirectiveTransform 我们在 vIf 讲过，可以看到传入的 name 是字符串 <code>for</code>， 因为 vFor 指令不像 vIf 指令那样有其他类型变种，所以需要指令名全等于 <code>for</code>。可以看到只要是 processFor 函数去处理节点，同时传入回调函数给 processFor，同时回调函数会返回 exitFn。</p> <div class="language-js line-numbers-mode"><pre class="language-js"><code><span class="token keyword">export</span> <span class="token keyword">const</span> transformFor <span class="token operator">=</span> <span class="token function">createStructuralDirectiveTransform</span><span class="token punctuation">(</span>
+  <span class="token string">'for'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">(</span><span class="token parameter">node<span class="token punctuation">,</span> dir<span class="token punctuation">,</span> context</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> <span class="token punctuation">{</span> helper <span class="token punctuation">}</span> <span class="token operator">=</span> context
+    <span class="token keyword">return</span> <span class="token function">processFor</span><span class="token punctuation">(</span>node<span class="token punctuation">,</span> dir<span class="token punctuation">,</span> context<span class="token punctuation">,</span> <span class="token parameter">forNode</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token comment">// create the loop render function expression now, and add the</span>
+      <span class="token operator">...</span>
+
+      <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token operator">...</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br></div></div><p>我们来看看 processFor，一开始我们就需要校验 vFor 指令有没有表达式，没有表达式怎么做遍历啊，直接上报 <code>X_V_FOR_NO_EXPRESSION</code> 错误。</p> <div class="language-js line-numbers-mode"><pre class="language-js"><code><span class="token comment">// target-agnostic transform used for both Client and SSR</span>
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">processFor</span><span class="token punctuation">(</span>
+  node<span class="token operator">:</span> ElementNode<span class="token punctuation">,</span>
+  dir<span class="token operator">:</span> DirectiveNode<span class="token punctuation">,</span>
+  context<span class="token operator">:</span> TransformContext<span class="token punctuation">,</span>
+  processCodegen<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">forNode<span class="token operator">:</span> ForNode</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token keyword">void</span><span class="token punctuation">)</span> <span class="token operator">|</span> <span class="token keyword">undefined</span>
+<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>dir<span class="token punctuation">.</span>exp<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    context<span class="token punctuation">.</span><span class="token function">onError</span><span class="token punctuation">(</span>
+      <span class="token function">createCompilerError</span><span class="token punctuation">(</span>ErrorCodes<span class="token punctuation">.</span><span class="token constant">X_V_FOR_NO_EXPRESSION</span><span class="token punctuation">,</span> dir<span class="token punctuation">.</span>loc<span class="token punctuation">)</span>
+    <span class="token punctuation">)</span>
+    <span class="token keyword">return</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">const</span> parseResult <span class="token operator">=</span> <span class="token function">parseForExpression</span><span class="token punctuation">(</span>
+    <span class="token comment">// can only be simple expression because vFor transform is applied</span>
+    <span class="token comment">// before expression transform.</span>
+    dir<span class="token punctuation">.</span>exp <span class="token keyword">as</span> SimpleExpressionNode<span class="token punctuation">,</span>
+    context
+  <span class="token punctuation">)</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>parseResult<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    context<span class="token punctuation">.</span><span class="token function">onError</span><span class="token punctuation">(</span>
+      <span class="token function">createCompilerError</span><span class="token punctuation">(</span>ErrorCodes<span class="token punctuation">.</span><span class="token constant">X_V_FOR_MALFORMED_EXPRESSION</span><span class="token punctuation">,</span> dir<span class="token punctuation">.</span>loc<span class="token punctuation">)</span>
+    <span class="token punctuation">)</span>
+    <span class="token keyword">return</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> addIdentifiers<span class="token punctuation">,</span> removeIdentifiers<span class="token punctuation">,</span> scopes <span class="token punctuation">}</span> <span class="token operator">=</span> context
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> source<span class="token punctuation">,</span> value<span class="token punctuation">,</span> key<span class="token punctuation">,</span> index <span class="token punctuation">}</span> <span class="token operator">=</span> parseResult
+
+  <span class="token keyword">const</span> forNode<span class="token operator">:</span> ForNode <span class="token operator">=</span> <span class="token punctuation">{</span>
+    type<span class="token operator">:</span> NodeTypes<span class="token punctuation">.</span><span class="token constant">FOR</span><span class="token punctuation">,</span>
+    loc<span class="token operator">:</span> dir<span class="token punctuation">.</span>loc<span class="token punctuation">,</span>
+    source<span class="token punctuation">,</span>
+    valueAlias<span class="token operator">:</span> value<span class="token punctuation">,</span>
+    keyAlias<span class="token operator">:</span> key<span class="token punctuation">,</span>
+    objectIndexAlias<span class="token operator">:</span> index<span class="token punctuation">,</span>
+    parseResult<span class="token punctuation">,</span>
+    children<span class="token operator">:</span> node<span class="token punctuation">.</span>tagType <span class="token operator">===</span> ElementTypes<span class="token punctuation">.</span><span class="token constant">TEMPLATE</span> <span class="token operator">?</span> node<span class="token punctuation">.</span>children <span class="token operator">:</span> <span class="token punctuation">[</span>node<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+
+  context<span class="token punctuation">.</span><span class="token function">replaceNode</span><span class="token punctuation">(</span>forNode<span class="token punctuation">)</span>
+
+  <span class="token comment">// bookkeeping</span>
+  scopes<span class="token punctuation">.</span>vFor<span class="token operator">++</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>__BROWSER__ <span class="token operator">&amp;&amp;</span> context<span class="token punctuation">.</span>prefixIdentifiers<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// scope management</span>
+    <span class="token comment">// inject identifiers to context</span>
+    value <span class="token operator">&amp;&amp;</span> <span class="token function">addIdentifiers</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span>
+    key <span class="token operator">&amp;&amp;</span> <span class="token function">addIdentifiers</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span>
+    index <span class="token operator">&amp;&amp;</span> <span class="token function">addIdentifiers</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">const</span> onExit <span class="token operator">=</span> processCodegen <span class="token operator">&amp;&amp;</span> <span class="token function">processCodegen</span><span class="token punctuation">(</span>forNode<span class="token punctuation">)</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    scopes<span class="token punctuation">.</span>vFor<span class="token operator">--</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>__BROWSER__ <span class="token operator">&amp;&amp;</span> context<span class="token punctuation">.</span>prefixIdentifiers<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      value <span class="token operator">&amp;&amp;</span> <span class="token function">removeIdentifiers</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span>
+      key <span class="token operator">&amp;&amp;</span> <span class="token function">removeIdentifiers</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span>
+      index <span class="token operator">&amp;&amp;</span> <span class="token function">removeIdentifiers</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>onExit<span class="token punctuation">)</span> <span class="token function">onExit</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br><span class="line-number">50</span><br><span class="line-number">51</span><br><span class="line-number">52</span><br><span class="line-number">53</span><br><span class="line-number">54</span><br><span class="line-number">55</span><br><span class="line-number">56</span><br><span class="line-number">57</span><br><span class="line-number">58</span><br><span class="line-number">59</span><br><span class="line-number">60</span><br><span class="line-number">61</span><br><span class="line-number">62</span><br><span class="line-number">63</span><br><span class="line-number">64</span><br><span class="line-number">65</span><br><span class="line-number">66</span><br></div></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/slamdunk-the-vue3/main/vue/compiler/transform/vIf.html" class="prev">
+        vIf
+      </a></span> <span class="next"><a href="/slamdunk-the-vue3/main/vue/compiler/codegen.html">
+        codegen
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/slamdunk-the-vue3/assets/js/app.d4e24298.js" defer></script><script src="/slamdunk-the-vue3/assets/js/2.43eface2.js" defer></script><script src="/slamdunk-the-vue3/assets/js/14.0c06e2ae.js" defer></script>
+  </body>
+</html>
