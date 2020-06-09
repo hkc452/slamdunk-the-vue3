@@ -62,7 +62,9 @@ module.exports = {
           options: {
             el: '#valine-vuepress-comment',
             appId: 'R4Jdw58HGA1qQw6aSdWb120E-gzGzoHsz',
-            appKey: 'ME2oUMuVPyPpcsJitmBVGNJk'
+            appKey: 'ME2oUMuVPyPpcsJitmBVGNJk',
+            placeholder: '骚年，你有啥想说的~',
+            path: '<%- frontmatter.to.path ? "/slamdunk-the-vue3" + frontmatter.to.path : window.location.pathname %>'
           }
         }
       ]
