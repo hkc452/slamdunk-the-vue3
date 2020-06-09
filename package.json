@@ -9,5 +9,8 @@
   "dependencies": {
     "gh-pages": "^2.2.0",
     "vuepress": "^1.4.1"
+  },
+  "devDependencies": {
+    "vuepress-plugin-comment": "^0.7.3"
   }
 }
