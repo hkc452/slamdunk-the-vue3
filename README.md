@@ -1,6 +1,6 @@
 ## SlamDunk the Vue3 [![Actions Status](https://github.com/hkc452/slamdunk-the-vue3/workflows/Website/badge.svg)](https://github.com/hkc452/slamdunk-the-vue3/actions)
 
-这个库用于对 Vue3 进行全面解读，站在 Vue3 的肩膀上，湘北全国总冠军🏆
+这个库用于对 Vue3 进行全面解读，站在 Vue3 的肩膀上，湘北全国总冠军🏆， 300 star 达成的话考虑继续连载
 
 ![image](https://s1.ax1x.com/2020/05/28/te9oin.md.jpg)
 
